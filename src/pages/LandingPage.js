@@ -1,14 +1,38 @@
-import React from 'react';
-import {Link} from "react-router-dom";
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
+    const [searchQuery, setSearchQuery] = useState('');
+    const navigate = useNavigate();
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchQuery.trim() !== '') {
+            navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
+        }
+    };
+
     return (
         <div className="bg-gradient-to-b from-blue-500 to-blue-800 text-white min-h-screen flex flex-col">
             {/* Navbar */}
             <header className="bg-transparent py-6">
                 <div className="container mx-auto px-4 flex justify-between items-center">
-                    <h1 className="text-3xl font-bold"> <Link to="/">404 Academy</Link></h1>
-
+                    <h1 className="text-3xl font-bold">
+                        <Link to="/">404 Academy</Link>
+                    </h1>
+                    <form
+                        onSubmit={handleSearch}
+                        className="flex items-center flex-1 mx-6"
+                    >
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="flex-1 px-4 py-2 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                            placeholder="Search for courses..."
+                            required
+                        />
+                    </form>
                     <nav className="flex space-x-6">
                         <Link
                             to="/login"
@@ -20,7 +44,7 @@ const LandingPage = () => {
                             to="/signup"
                             className="bg-transparent border-2 border-white px-6 py-1 rounded-lg text-lg font-semibold hover:bg-blue-700 hover:border-blue-700"
                         >
-                            Signup
+                            Sign up
                         </Link>
                     </nav>
                 </div>
@@ -42,7 +66,6 @@ const LandingPage = () => {
                         >
                             Get Started
                         </Link>
-
                         <a
                             href="#learn-more"
                             className="bg-transparent border-2 border-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 hover:border-blue-700"

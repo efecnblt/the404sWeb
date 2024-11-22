@@ -18,6 +18,7 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import Profile from "./components/Profile";
+import SearchPage from "./pages/SearchPage";
 // Doğru yolu belirleyin
 function App() {
     return (
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/home" element={<Home />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/search" element={<SearchPage />} />
             </Routes>
         </Router>
         /*<Router>

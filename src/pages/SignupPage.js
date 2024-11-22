@@ -18,14 +18,16 @@ const Signup = () => {
         }
         try {
             await createUserWithEmailAndPassword(auth, email, password);
-            navigate('/home'); // Başarılı kayıt sonrası yönlendirme
+            navigate('/home'); // Navigate to home on successful signup
         } catch (err) {
             setError('Failed to create account. Please try again.');
         }
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="min-h-screen bg-gray-100 flex flex-col items-center">
+            {/* Add heading */}
+            <h1 className="text-3xl font-bold text-blue-600 mt-8 mb-4">404 Academy</h1>
             <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
                 <h2 className="text-2xl font-bold text-center mb-4">Sign Up</h2>
                 {error && (
