@@ -4,7 +4,7 @@ function Footer() {
     return (
         <footer className="bg-gray-800 text-white py-8">
             <div className="container mx-auto text-center">
-                <h3 className="text-lg font-bold">ACADEMY</h3>
+                <h3 className="text-lg font-bold">404 ACADEMY</h3>
                 <p className="text-sm mt-2">Learn and grow with the best online courses.</p>
                 <div className="flex justify-center mt-4 space-x-6">
                     <a href="#" className="hover:text-purple-500">Privacy Policy</a>

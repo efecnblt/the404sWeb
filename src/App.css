@@ -76,3 +76,39 @@
   margin-bottom: 1rem;
   color: #4a4a4a;
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* Container Ayarları */
+.profile-container {
+  width: 200px; /* Profil resminin genişliği */
+  height: 200px; /* Profil resminin yüksekliği */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Profil Resmi */
+.profile-image {
+  width: 100%; /* Tam genişlik */
+  height: 100%; /* Tam yükseklik */
+  border-radius: 50%; /* Yuvarlak yapar */
+  object-fit: cover;
+  z-index: 4; /* Profil resmini öne getirir */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Gölgelendirme */
+}
+
+/* Logo */
+.logo-image {
+  width: 160px; /* Logonun genişliği */
+  height: 160px; /* Logonun yüksekliği */
+  bottom: -20px; /* Profil resminin altına kaydırır */
+  left: 50%; /* Yatay olarak merkeze alır */
+  transform: translateX(-50%); /* Gerçek ortalama için */
+  z-index: 1; /* Profil resminin üstünde yer alır */
+  position: absolute;
+}
