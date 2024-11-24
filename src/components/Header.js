@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { auth, db } from "../firebase/firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import React, {useEffect, useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
+import {auth, db} from "../firebase/firebaseConfig";
+import {doc, getDoc} from "firebase/firestore";
+import {onAuthStateChanged} from "firebase/auth";
 
 function Header() {
     const [userData, setUserData] = useState(null);
@@ -43,9 +43,10 @@ function Header() {
         <header className="flex items-center justify-between p-4 bg-white shadow-md">
             {/* Logo ve Başlık */}
             <div className="flex items-center space-x-2">
-
-                {/*bg-clip-text bg-gradient-to-r from-[#114224] to-[#2CA459]*/}
-                <span className="text-2xl font-bold bg-clip-text bg-[#114224]">404 ACADEMY</span>
+                {/*font-leckerli*/}
+                <Link to="/app/home" className="hover:text-purple-600 text-2xl font-leckerli font-bold text-gray-600">
+                    404 Academy
+                </Link>
             </div>
 
             {/* Menü Öğeleri */}
@@ -54,7 +55,7 @@ function Header() {
                 <div className="relative">
                     <button
                         onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                        className="hover:text-purple-600"
+                        className="hover:text-purple-600 "
                     >
                         Categories ▾
                     </button>
@@ -115,12 +116,7 @@ function Header() {
                         >
                             {/* Profil ve Logo İçeren Container */}
                             <div className="profile-container relative">
-                                {/* Logo */}
-                                <img
-                                    src="/images/logo.png"
-                                    alt="Logo"
-                                    className="logo-image absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1"
-                                />
+
 
                                 {/* Profil Resmi */}
                                 <img

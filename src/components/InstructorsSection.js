@@ -71,7 +71,7 @@ function InstructorsSection() {
                     className="lg:w-2/3 bg-purple-50 rounded-lg p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                     {instructors.slice(0, 6).map((instructor) => (
                         <Link
-                            to={`/instructor/${instructor.id}`}
+                            to={`/app/home/instructor/${instructor.id}`}
                             key={instructor.id}
                             className="bg-white rounded-lg shadow hover:shadow-md p-4 text-center"
                         >
