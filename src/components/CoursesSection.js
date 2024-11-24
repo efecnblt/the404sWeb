@@ -28,6 +28,7 @@ function CoursesSection() {
                     );
                     const authorCourses = coursesSnapshot.docs.map((courseDoc) => ({
                         id: courseDoc.id,
+                        instructorId: authorDoc.id,
                         authorName: authorDoc.data().name,
                         ...courseDoc.data(),
                     }));
@@ -95,7 +96,7 @@ function CoursesSection() {
                                 </div>
                                 {/* Buton */}
                                 <Link
-                                    to={`/course/${course.id}`}
+                                    to={`/app/home/instructor/${course.instructorId}/course/${course.id}`}
                                     className="bg-purple-600 text-white flex items-center justify-center gap-2 text-sm px-4 py-2 rounded-lg hover:bg-purple-700"
                                 >
                                     Start Course
