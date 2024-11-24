@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
+import { Link } from "react-router-dom";
 
 function TopCoursesSection() {
     const [courses, setCourses] = useState([]);
@@ -18,15 +19,18 @@ function TopCoursesSection() {
                         collection(db, `authors/${authorDoc.id}/courses`)
                     );
                     const authorCourses = coursesSnapshot.docs.map((courseDoc) => ({
-                        id: courseDoc.id,
+                        id: `${authorDoc.id}.${courseDoc.id}`,
                         authorName: authorDoc.data().name,
+                        instructorId: authorDoc.id, // Eğitmen kimliğini ekliyoruz
                         ...courseDoc.data(),
                     }));
                     allCourses = [...allCourses, ...authorCourses];
                 }
 
-                // Sadece ilk 10 kursu alalım (örneğin, en yüksek rating'e göre)
-                const sortedCourses = allCourses.sort((a, b) => b.rating - a.rating).slice(0, 10);
+                // Sadece en yüksek puanlı 10 kursu alın
+                const sortedCourses = allCourses
+                    .sort((a, b) => b.rating - a.rating)
+                    .slice(0, 10);
                 setCourses(sortedCourses);
             } catch (error) {
                 console.error("Error fetching top courses:", error);
@@ -38,25 +42,29 @@ function TopCoursesSection() {
 
     const handleNext = () => {
         if (currentIndex + visibleCourses < courses.length) {
-            setCurrentIndex(currentIndex + 1);
+            setCurrentIndex((prevIndex) => prevIndex + visibleCourses);
         }
     };
 
     const handlePrev = () => {
-        if (currentIndex > 0) {
-            setCurrentIndex(currentIndex - 1);
+        if (currentIndex - visibleCourses >= 0) {
+            setCurrentIndex((prevIndex) => prevIndex - visibleCourses);
         }
     };
 
+    // Gösterilecek kursları kesin olarak `visibleCourses` kadar sınırla
+    const displayedCourses = courses.slice(currentIndex, currentIndex + visibleCourses);
 
     return (
-        <section className="py-12 bg-white">
+
+    <section className="py-12 bg-white">
             <div className="max-w-7xl mx-auto px-4">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-3xl font-bold">Top Courses</h2>
                     <div className="flex gap-2">
                         <button
                             onClick={handlePrev}
+
                             disabled={currentIndex === 0}
                             className={`p-2 rounded-full shadow-lg bg-gray-200 hover:bg-gray-300 ${
                                 currentIndex === 0 && "opacity-50 cursor-not-allowed"
@@ -104,7 +112,7 @@ function TopCoursesSection() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-                    {courses.slice(currentIndex, currentIndex + visibleCourses).map((course) => (
+                    {displayedCourses.map((course) => (
                         <div
                             key={course.id}
                             className="bg-white rounded-lg shadow hover:shadow-md overflow-hidden"
@@ -135,13 +143,28 @@ function TopCoursesSection() {
                                             viewBox="0 0 20 20"
                                             fill="currentColor"
                                         >
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.16c.969 0 1.371 1.24.588 1.81l-3.374 2.455a1 1 0 00-.364 1.118l1.286 3.957c.3.921-.755 1.688-1.54 1.118l-3.374-2.455a1 1 0 00-1.175 0l-3.374-2.455c-.785.57-1.84-.197-1.54-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.98 9.384c-.783-.57-.38-1.81.588-1.81h4.16a1 1 0 00.95-.69L9.049 2.927z" />
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.16c.969 0 1.371 1.24.588 1.81l-3.374 2.455a1 1 0 00-.364 1.118l1.286 3.957c.3.921-.755 1.688-1.54 1.118l-3.374-2.455a1 1 0 00-1.175 0l-3.374 2.455c-.785.57-1.84-.197-1.54-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.98 9.384c-.783-.57-.38-1.81.588-1.81h4.16a1 1 0 00.95-.69L9.049 2.927z" />
                                         </svg>
                                         <span className="ml-1">{course.rating}</span>
                                     </div>
-                                    <button className="bg-purple-600 text-white flex items-center justify-center gap-2 text-sm px-4 py-2 rounded-lg hover:bg-purple-700">
+                                    <Link
+                                        to={`/app/home/instructor/${course.instructorId}/course/${course.id}`}
+                                        className="bg-purple-600 text-white flex items-center justify-center gap-2 text-sm px-4 py-2 rounded-lg hover:bg-purple-700"
+                                    >
                                         Start Course
-                                    </button>
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="h-5 w-5"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1.707-8.707a1 1 0 011.414 0L11 10.586V7a1 1 0 112 0v5a1 1 0 01-1 1H7a1 1 0 110-2h3.586l-1.293-1.293a1 1 0 010-1.414z"
+                                                clipRule="evenodd"
+                                            />
+                                        </svg>
+                                    </Link>
                                 </div>
                             </div>
                         </div>

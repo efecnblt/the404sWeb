@@ -11,6 +11,7 @@ import SearchPage from "./pages/SearchPage";
 import InstructorProfile from "./components/InstructorProfile";
 import CoursePage from "./pages/CoursePage";
 import Layout from "./components/Layout";
+import Contact from "./pages/Contact";
 
 function App() {
     return (
@@ -26,6 +27,7 @@ function App() {
                     <Route path="home" element={<Home />} />
                     <Route path="/app/home/instructor/:instructorId" element={<InstructorProfile />} />
                     <Route path="/app/home/search" element={<SearchPage />} />
+                    <Route path="/app/home/contact" element={<Contact />} />
                     <Route path="/app/home/instructor/:instructorId/course/:courseId" element={<CoursePage />} />
                 </Route>
 

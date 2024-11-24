@@ -27,7 +27,7 @@ function CoursesSection() {
                         collection(db, `authors/${authorDoc.id}/courses`)
                     );
                     const authorCourses = coursesSnapshot.docs.map((courseDoc) => ({
-                        id: courseDoc.id,
+                        id: `${authorDoc.id}.${courseDoc.id}`,
                         instructorId: authorDoc.id,
                         authorName: authorDoc.data().name,
                         ...courseDoc.data(),

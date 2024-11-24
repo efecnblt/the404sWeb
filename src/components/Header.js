@@ -82,13 +82,13 @@ function Header() {
                         </div>
                     )}
                 </div>
-                <Link to="/teach" className="hover:text-purple-600">
+                <Link to="/app/home/teach" className="hover:text-purple-600">
                     Teach
                 </Link>
-                <Link to="/contact" className="hover:text-purple-600">
+                <Link to="/app/home/contact" className="hover:text-purple-600">
                     Contact Us
                 </Link>
-                <Link to="/about" className="hover:text-purple-600">
+                <Link to="/app/home/about" className="hover:text-purple-600">
                     About Us
                 </Link>
             </nav>
