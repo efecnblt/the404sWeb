@@ -4,21 +4,35 @@ import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 
 const CoursePage = () => {
-    const { authorId, courseId } = useParams(); // URL'den gelen authorId ve courseId
+    const { courseId } = useParams(); // URL'den gelen birleşik parametre (authorId.courseId)
+    const [authorId, setAuthorId] = useState(""); // Ayrıştırılmış authorId
+    const [separateCourseId, setSeparateCourseId] = useState(""); // Ayrıştırılmış courseId
     const [courseInfo, setCourseInfo] = useState(null); // Kurs bilgileri
     const [sections, setSections] = useState([]); // Section listesi
     const [selectedVideo, setSelectedVideo] = useState(null); // Seçili video
     const [loading, setLoading] = useState(true); // Yükleniyor durumu
 
+
+    // URL'den gelen birleşik parametreyi ayrıştırma
+    useEffect(() => {
+        if (courseId) {
+            const [extractedAuthorId, extractedCourseId] = courseId.split(".");
+            setAuthorId(extractedAuthorId);
+            setSeparateCourseId(extractedCourseId);
+        }
+    }, [courseId]);
+
     // Firebase'den Kurs ve Section Verilerini Çekme
     useEffect(() => {
         const fetchCourseData = async () => {
+            if (!authorId || !separateCourseId) return;
+
             console.log("Fetching course data...");
             console.log("authorId:", authorId);
-            console.log("courseId:", courseId);
+            console.log("courseId:", separateCourseId);
 
             try {
-                const courseRef = doc(db, "authors", authorId, "courses", courseId);
+                const courseRef = doc(db, "authors", authorId, "courses", separateCourseId);
                 const courseSnap = await getDoc(courseRef);
 
                 if (courseSnap.exists()) {
@@ -33,7 +47,7 @@ const CoursePage = () => {
         };
 
         fetchCourseData();
-    }, [authorId, courseId]);
+    }, [authorId, separateCourseId]);
 
 
     if (loading) {

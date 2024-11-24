@@ -25,7 +25,6 @@ function CourseDetail() {
                 setLoading(false);
             }
         };
-
         fetchSections();
     }, [authorId, courseId]);
 
