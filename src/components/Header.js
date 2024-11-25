@@ -11,7 +11,6 @@ function Header() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState(""); // Arama terimi
     const navigate = useNavigate();
-    const location = useLocation(); // Rota değişikliğini izlemek için
 
 
     useEffect(() => {
@@ -34,7 +33,9 @@ function Header() {
         return () => unsubscribe();
     }, []);
 
-
+    const onClear = () => {
+        setSearchTerm(""); // Arama terimini sıfırla
+    };
 
 
     const handleLogout = async () => {
@@ -51,7 +52,9 @@ function Header() {
             {/* Logo ve Başlık */}
             <div className="flex items-center space-x-2">
                 {/*font-leckerli*/}
-                <Link to="/app/home" className="hover:text-purple-600 text-2xl font-leckerli font-bold text-gray-600">
+                <Link to="/app/home"
+                      onClick={() => setSearchTerm("")} // Arama çubuğunu sıfırla
+                      className="hover:text-purple-600 text-2xl font-leckerli font-bold text-gray-600">
                     404 Academy
                 </Link>
             </div>
@@ -106,6 +109,7 @@ function Header() {
                 <SearchBar
                     searchTerm={searchTerm}
                     onSearchChange={(term) => setSearchTerm(term)} // Arama terimini güncelle
+                    onClear={onClear} // Arama çubuğunu sıfırla
                 />
 
                 {/* Profil Dropdown */}

@@ -64,29 +64,31 @@ function SearchBar() {
     }, [searchTerm, courses]);
 
     // Rota değişikliğinde arama çubuğunu sıfırla
-    useEffect(() => {
+    const onClear = () => {
         setSearchTerm(""); // Arama terimini sıfırla
-    }, [location.pathname]); // location.pathname değiştiğinde çalışır
+        setFilteredResults([]); // Filtrelenmiş sonuçları temizle
+    };
 
     return (
-        <div className="relative">
+        <div className="relative  w-full max-w-lg">
             {/* Arama Çubuğu */}
             <input
                 type="text"
                 placeholder="Search Anything"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="px-4 py-2 w-64 border rounded-full focus:outline-none focus:ring-2 focus:ring-purple-600"
+                onBlur={() => onClear && onClear()} // Kullanıcı başka bir yere tıkladığında sıfırla
+                className="px-4 py-2 w-full  border rounded-full focus:outline-none focus:ring-2 focus:ring-purple-600"
             />
             <span className="absolute right-3 top-2.5 text-gray-500">🔍</span>
 
             {/* Arama Sonuçları */}
             {filteredResults.length > 0 && (
-                <div className="absolute top-12 left-0 bg-white shadow-lg rounded-lg w-64 z-10">
+                <div className="absolute top-12 left-0 bg-white shadow-lg rounded-lg w-full max-w-lg z-10"
+                     onMouseLeave={() => onClear && onClear()} // Kullanıcı başka bir yere tıklarsa sonuçları gizle
+                >
                     <ul>
                         {filteredResults.map((course) => (
-                            console.log(`Link to course: /course/${course.authorId}/${course.id}`),
-
                             <Link
 
                                 to={`/app/home/course/${course.authorId}/${course.id}`}
@@ -99,7 +101,7 @@ function SearchBar() {
                                     className="w-10 h-10 rounded-full mr-2"
                                 />
                                 <div>
-                                    <p className="text-sm font-bold">{course.name}</p>
+                                    <p className="text-sm font-bold text-gray-800">{course.name}</p>
                                     <p className="text-xs text-gray-500">{course.authorName}</p>
                                 </div>
                             </Link>
