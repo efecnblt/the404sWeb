@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import {auth, db} from "../firebase/firebaseConfig";
 import {doc, getDoc} from "firebase/firestore";
 import {onAuthStateChanged} from "firebase/auth";
@@ -11,6 +11,8 @@ function Header() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState(""); // Arama terimi
     const navigate = useNavigate();
+    const location = useLocation(); // Rota değişikliğini izlemek için
+
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -31,6 +33,7 @@ function Header() {
 
         return () => unsubscribe();
     }, []);
+
 
 
 

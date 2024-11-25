@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 
 function SearchBar() {
     const [searchTerm, setSearchTerm] = useState(""); // Kullanıcı arama terimi
     const [courses, setCourses] = useState([]); // Tüm kurslar
     const [filteredResults, setFilteredResults] = useState([]); // Filtrelenmiş sonuçlar
+    const location = useLocation(); // Rota değişikliğini izlemek için
+
 
     // Firebase'den tüm kursları çekme
     useEffect(() => {
@@ -20,6 +23,7 @@ function SearchBar() {
                     );
                     const authorCourses = coursesSnapshot.docs.map((courseDoc) => ({
                         id: courseDoc.id,
+                        authorId: authorDoc.id, // Author ID buradan ekleniyor
                         authorName: authorDoc.data().name,
                         ...courseDoc.data(),
                     }));
@@ -59,6 +63,11 @@ function SearchBar() {
         }
     }, [searchTerm, courses]);
 
+    // Rota değişikliğinde arama çubuğunu sıfırla
+    useEffect(() => {
+        setSearchTerm(""); // Arama terimini sıfırla
+    }, [location.pathname]); // location.pathname değiştiğinde çalışır
+
     return (
         <div className="relative">
             {/* Arama Çubuğu */}
@@ -76,9 +85,13 @@ function SearchBar() {
                 <div className="absolute top-12 left-0 bg-white shadow-lg rounded-lg w-64 z-10">
                     <ul>
                         {filteredResults.map((course) => (
-                            <li
+                            console.log(`Link to course: /course/${course.authorId}/${course.id}`),
+
+                            <Link
+
+                                to={`/app/home/course/${course.authorId}/${course.id}`}
                                 key={course.id}
-                                className="p-2 hover:bg-gray-100 cursor-pointer flex items-center"
+                                className="block p-2 hover:bg-gray-100 cursor-pointer flex items-center"
                             >
                                 <img
                                     src={course.image_url || "https://via.placeholder.com/40"}
@@ -89,11 +102,19 @@ function SearchBar() {
                                     <p className="text-sm font-bold">{course.name}</p>
                                     <p className="text-xs text-gray-500">{course.authorName}</p>
                                 </div>
-                            </li>
+                            </Link>
                         ))}
                     </ul>
                 </div>
             )}
+
+            {/* Eğer eşleşen kurs yoksa mesaj göster */}
+            {filteredResults.length === 0 && searchTerm && (
+                <p className="absolute top-12 left-0 text-gray-500 bg-white p-2 rounded-lg shadow-lg w-64">
+                    No results found for "{searchTerm}"
+                </p>
+            )}
+
         </div>
     );
 }
