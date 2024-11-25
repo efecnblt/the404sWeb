@@ -12,12 +12,30 @@ function CourseDetail() {
     useEffect(() => {
         const fetchCourseData = async () => {
             try {
+
+                // Author bilgilerini çek
+                const authorRef = doc(db, `authors/${authorId}`);
+                const authorSnap = await getDoc(authorRef);
+
+                if (authorSnap.exists()) {
+                    const authorData = authorSnap.data();
+                    setCourseInfo((prev) => ({
+                        ...prev,
+                        authorName: authorData.name,
+                    }));
+                } else {
+                    console.error("Author not found in Firebase.");
+                }
+
                 // Kurs bilgilerini çek
                 const courseRef = doc(db, `authors/${authorId}/courses/${courseId}`);
                 const courseSnap = await getDoc(courseRef);
 
                 if (courseSnap.exists()) {
-                    setCourseInfo(courseSnap.data());
+                    setCourseInfo((prev) => ({
+                        ...prev,
+                        ...courseSnap.data(),
+                    }));
                 } else {
                     console.error("Course not found in Firebase.");
                 }

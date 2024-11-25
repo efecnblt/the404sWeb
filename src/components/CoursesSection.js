@@ -96,7 +96,8 @@ function CoursesSection() {
                                 </div>
                                 {/* Buton */}
                                 <Link
-                                    to={`/app/home/instructor/${course.instructorId}/course/${course.id}`}
+
+                                    to={`/app/home/course/${course.id.split(".")[0]}/${course.id.split(".")[1]}`}
                                     className="bg-purple-600 text-white flex items-center justify-center gap-2 text-sm px-4 py-2 rounded-lg hover:bg-purple-700"
                                 >
                                     Start Course
