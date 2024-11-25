@@ -131,7 +131,7 @@ const LandingPage = () => {
             {/* Testimonials Section */}
             <section className="bg-white py-16">
                 <div className="container mx-auto px-4 text-center">
-                    <h2 className="text-3xl font-bold mb-8">What Our Students Say</h2>
+                    <h2 className="text-3xl font-bold mb-8 text-gray-800">What Our Students Say</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div className="p-6 bg-gray-50 rounded-lg shadow-md">
                             <p className="italic text-gray-600">
@@ -156,24 +156,24 @@ const LandingPage = () => {
             </section>
 
             {/* FAQ Section */}
-            <section className="bg-gray-100 py-16">
+            <section className="bg-blue-500 py-16">
                 <div className="container mx-auto px-4">
                     <h2 className="text-3xl font-bold mb-8 text-center">FAQs</h2>
                     <div className="space-y-6 max-w-4xl mx-auto">
                         <div className="p-4 bg-white rounded-lg shadow-md">
-                            <h3 className="font-bold">How do I sign up?</h3>
+                            <h3 className="font-bold text-blue-600">How do I sign up?</h3>
                             <p className="text-gray-600">
                                 Simply click on the "Sign Up" button and fill out the form.
                             </p>
                         </div>
                         <div className="p-4 bg-white rounded-lg shadow-md">
-                            <h3 className="font-bold">Are the courses free?</h3>
+                            <h3 className="font-bold text-blue-600">Are the courses free?</h3>
                             <p className="text-gray-600">
                                 We offer both free and premium courses to suit your needs.
                             </p>
                         </div>
                         <div className="p-4 bg-white rounded-lg shadow-md">
-                            <h3 className="font-bold">Can I access courses offline?</h3>
+                            <h3 className="font-bold text-blue-600">Can I access courses offline?</h3>
                             <p className="text-gray-600">
                                 Yes, our mobile app allows offline access to courses.
                             </p>

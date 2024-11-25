@@ -50,7 +50,7 @@ function Header() {
     return (
         <header className="flex items-center justify-between p-4 bg-white shadow-md">
             {/* Logo ve Başlık */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
                 {/*font-leckerli*/}
                 <Link to="/app/home"
                       onClick={() => setSearchTerm("")} // Arama çubuğunu sıfırla
@@ -111,7 +111,6 @@ function Header() {
                     onSearchChange={(term) => setSearchTerm(term)} // Arama terimini güncelle
                     onClear={onClear} // Arama çubuğunu sıfırla
                 />
-
                 {/* Profil Dropdown */}
                 {userData && (
                     <div className="relative">
@@ -160,7 +159,9 @@ function Header() {
                     </div>
                 )}
 
+
             </div>
+
         </header>
     );
 }
