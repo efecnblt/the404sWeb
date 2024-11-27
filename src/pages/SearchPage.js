@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from '../firebase/firebaseConfig'; // Adjust the import based on your project structure
 
 const SearchPage = () => {
     const location = useLocation();
@@ -8,18 +10,43 @@ const SearchPage = () => {
     const navigate = useNavigate();
 
     const [searchQuery, setSearchQuery] = useState(initialQuery);
-
-    // Example courses
-    const [courses, setCourses] = useState([
-        { id: 1, title: "Course 1", category: "Development", description: "Learn the basics of web development." },
-        { id: 2, title: "Course 2", category: "Design", description: "Introduction to graphic design." },
-        { id: 3, title: "Course 3", category: "Marketing", description: "Digital marketing essentials." },
-        { id: 4, title: "Course 4", category: "Development", description: "Advanced JavaScript techniques." },
-        { id: 5, title: "Course 5", category: "Design", description: "Mastering UI/UX design." },
-        { id: 6, title: "Course 6", category: "Marketing", description: "SEO optimization strategies." },
-    ]);
-
+    const [courses, setCourses] = useState([]);
     const [filter, setFilter] = useState("All");
+    const [loading, setLoading] = useState(true);
+
+    // Fetch courses from Firebase
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                const coursesRef = collection(db, "courses");
+                let q;
+
+                // Apply search filter if searchQuery exists
+                if (searchQuery) {
+                    q = query(
+                        coursesRef,
+                        where("title", ">=", searchQuery),
+                        where("title", "<=", searchQuery + "\uf8ff")
+                    );
+                } else {
+                    q = coursesRef; // Get all courses if no search query
+                }
+
+                const querySnapshot = await getDocs(q);
+                const fetchedCourses = querySnapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+                setCourses(fetchedCourses);
+            } catch (error) {
+                console.error("Error fetching courses:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCourses();
+    }, [searchQuery]);
 
     // Handle new search
     const handleSearch = (e) => {
@@ -84,44 +111,24 @@ const SearchPage = () => {
                         <aside className="w-1/4 bg-gray-100 text-gray-800 p-6 rounded-lg shadow-lg">
                             <h3 className="text-xl font-bold mb-4">Filter by Category</h3>
                             <ul className="space-y-2">
-                                <li>
-                                    <button
-                                        className={`w-full text-left px-4 py-2 rounded-lg ${filter === "All" ? "bg-blue-600 text-white" : "hover:bg-blue-100"}`}
-                                        onClick={() => setFilter("All")}
-                                    >
-                                        All
-                                    </button>
-                                </li>
-                                <li>
-                                    <button
-                                        className={`w-full text-left px-4 py-2 rounded-lg ${filter === "Development" ? "bg-blue-600 text-white" : "hover:bg-blue-100"}`}
-                                        onClick={() => setFilter("Development")}
-                                    >
-                                        Development
-                                    </button>
-                                </li>
-                                <li>
-                                    <button
-                                        className={`w-full text-left px-4 py-2 rounded-lg ${filter === "Design" ? "bg-blue-600 text-white" : "hover:bg-blue-100"}`}
-                                        onClick={() => setFilter("Design")}
-                                    >
-                                        Design
-                                    </button>
-                                </li>
-                                <li>
-                                    <button
-                                        className={`w-full text-left px-4 py-2 rounded-lg ${filter === "Marketing" ? "bg-blue-600 text-white" : "hover:bg-blue-100"}`}
-                                        onClick={() => setFilter("Marketing")}
-                                    >
-                                        Marketing
-                                    </button>
-                                </li>
+                                {["All", "Development", "Design", "Marketing"].map((cat) => (
+                                    <li key={cat}>
+                                        <button
+                                            className={`w-full text-left px-4 py-2 rounded-lg ${filter === cat ? "bg-blue-600 text-white" : "hover:bg-blue-100"}`}
+                                            onClick={() => setFilter(cat)}
+                                        >
+                                            {cat}
+                                        </button>
+                                    </li>
+                                ))}
                             </ul>
                         </aside>
 
                         {/* Courses Section */}
                         <section className="w-3/4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredCourses.length > 0 ? (
+                            {loading ? (
+                                <p>Loading courses...</p>
+                            ) : filteredCourses.length > 0 ? (
                                 filteredCourses.map((course) => (
                                     <div
                                         key={course.id}

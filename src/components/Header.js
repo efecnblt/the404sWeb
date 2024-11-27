@@ -45,7 +45,7 @@ function Header() {
             <div className="flex items-center space-x-2">
 
                 {/*bg-clip-text bg-gradient-to-r from-[#114224] to-[#2CA459]*/}
-                <span className="text-2xl font-bold bg-clip-text bg-[#114224]">404 ACADEMY</span>
+                <span className="text-3xl font-bold bg-clip-text bg-[#114224]">404 Academy</span>
             </div>
 
             {/* Menü Öğeleri */}
