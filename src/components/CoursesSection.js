@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
+import { Link } from "react-router-dom";
 
 function CoursesSection() {
     const [courses, setCourses] = useState([]);
@@ -26,7 +27,8 @@ function CoursesSection() {
                         collection(db, `authors/${authorDoc.id}/courses`)
                     );
                     const authorCourses = coursesSnapshot.docs.map((courseDoc) => ({
-                        id: courseDoc.id,
+                        id: `${authorDoc.id}.${courseDoc.id}`,
+                        instructorId: authorDoc.id,
                         authorName: authorDoc.data().name,
                         ...courseDoc.data(),
                     }));
@@ -52,7 +54,7 @@ function CoursesSection() {
         <section className="py-12 bg-gray-50">
             <h2 className="text-3xl font-bold text-center mb-6">New Courses</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-                {courses.slice(0,8).map((course) => (
+                {courses.slice(0, 8).map((course) => (
                     <div
                         key={course.id}
                         className="bg-white rounded-lg shadow hover:shadow-md overflow-hidden"
@@ -77,8 +79,8 @@ function CoursesSection() {
                             <div className="flex items-center justify-between mt-4 text-gray-600 text-sm">
                                 <span className="font-medium">{course.authorName}</span>
                                 <span className="bg-gray-100 px-2 py-1 rounded text-xs">
-                  {course.level}
-                </span>
+                                    {course.level}
+                                </span>
                             </div>
                             <div className="flex items-center justify-between mt-4">
                                 <div className="flex items-center text-yellow-500">
@@ -93,7 +95,11 @@ function CoursesSection() {
                                     <span className="ml-1">{course.rating}</span>
                                 </div>
                                 {/* Buton */}
-                                <button className="bg-purple-600 text-white flex items-center justify-center gap-2 text-sm px-4 py-2 rounded-lg hover:bg-purple-700">
+                                <Link
+
+                                    to={`/app/home/course/${course.id.split(".")[0]}/${course.id.split(".")[1]}`}
+                                    className="bg-purple-600 text-white flex items-center justify-center gap-2 text-sm px-4 py-2 rounded-lg hover:bg-purple-700"
+                                >
                                     Start Course
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -107,13 +113,12 @@ function CoursesSection() {
                                             clipRule="evenodd"
                                         />
                                     </svg>
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
-
         </section>
     );
 }

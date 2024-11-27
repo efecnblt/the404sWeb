@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
-import { Link } from "react-router-dom"; // Router'dan Link kullanımı
+import { Link } from "react-router-dom";
+import { handleNewsletterSubscribe } from "./Newsletter"; // Newsletter fonksiyonunu import ettik
 
 function InstructorsSection() {
     const [instructors, setInstructors] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    // Newsletter için state
+    const [email, setEmail] = useState("");
+    const [message, setMessage] = useState("");
+    const [isSuccess, setIsSuccess] = useState(false);
 
     useEffect(() => {
         const fetchInstructors = async () => {
@@ -26,6 +32,12 @@ function InstructorsSection() {
         fetchInstructors();
     }, []);
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        handleNewsletterSubscribe(email, setMessage, setIsSuccess);
+        setEmail(""); // E-posta alanını temizle
+    };
+
     if (loading) {
         return <p className="text-center">Loading instructors...</p>;
     }
@@ -44,7 +56,8 @@ function InstructorsSection() {
                     </p>
                     <div className="flex flex-col items-center lg:items-start gap-4">
                         <button
-                            className="bg-black text-white px-6 py-3 rounded-lg text-sm hover:bg-gray-800 flex items-center gap-2">
+                            className="bg-black text-white px-6 py-3 rounded-lg text-sm hover:bg-gray-800 flex items-center gap-2"
+                        >
                             All Instructors
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -62,16 +75,17 @@ function InstructorsSection() {
                             </svg>
                         </button>
                         <span className="text-purple-600 bg-purple-50 px-4 py-2 rounded-full text-sm">
-              {instructors.length} Instructors
-            </span>
+                            {instructors.length} Instructors
+                        </span>
                     </div>
                 </div>
                 {/* Sağ Bölüm: Eğitmenler */}
                 <div
-                    className="lg:w-2/3 bg-purple-50 rounded-lg p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    className="lg:w-2/3 bg-purple-50 rounded-lg p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
+                >
                     {instructors.slice(0, 6).map((instructor) => (
                         <Link
-                            to={`/instructor/${instructor.id}`}
+                            to={`/app/home/instructor/${instructor.id}`}
                             key={instructor.id}
                             className="bg-white rounded-lg shadow hover:shadow-md p-4 text-center"
                         >
@@ -87,24 +101,41 @@ function InstructorsSection() {
                         </Link>
                     ))}
                 </div>
-
             </div>
+            {/* Newsletter Bölümü */}
             <section className="py-12 bg-white">
                 <div
-                    className="max-w-7xl mx-auto px-4 flex flex-col lg:flex-row items-center justify-between bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg shadow-lg p-8">
+                    className="max-w-7xl mx-auto px-4 flex flex-col lg:flex-row items-center justify-between bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg shadow-lg p-8"
+                >
                     {/* Sol Bölüm: Başlık ve Açıklama */}
                     <div className="text-center lg:text-left">
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">
                             Find Out About The Latest Courses With The{" "}
                             <span className="text-blue-600">Academy</span> Newsletter
                         </h2>
+                        {message && (
+                            <div
+                                className={`p-4 rounded-lg mt-4 ${
+                                    isSuccess
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-red-100 text-red-800"
+                                }`}
+                            >
+                                {message}
+                            </div>
+                        )}
                     </div>
 
                     {/* Sağ Bölüm: Email Giriş ve Buton */}
                     <div className="mt-6 lg:mt-0">
-                        <form className="flex flex-col sm:flex-row items-center bg-white p-2 rounded-full shadow-lg">
+                        <form
+                            onSubmit={handleSubmit}
+                            className="flex flex-col sm:flex-row items-center bg-white p-2 rounded-full shadow-lg"
+                        >
                             <input
                                 type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Email Address..."
                                 className="flex-1 px-4 py-2 rounded-l-full text-gray-600 focus:outline-none"
                             />
@@ -118,7 +149,6 @@ function InstructorsSection() {
                     </div>
                 </div>
             </section>
-
         </section>
     );
 }

@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { auth, db } from "../firebase/firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import React, {useEffect, useState} from "react";
+import {Link, useLocation, useNavigate} from "react-router-dom";
+import {auth, db} from "../firebase/firebaseConfig";
+import {doc, getDoc} from "firebase/firestore";
+import {onAuthStateChanged} from "firebase/auth";
+import SearchBar from "./SearchBar";
 
 function Header() {
     const [userData, setUserData] = useState(null);
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState(""); // Arama terimi
     const navigate = useNavigate();
+
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -30,6 +33,11 @@ function Header() {
         return () => unsubscribe();
     }, []);
 
+    const onClear = () => {
+        setSearchTerm(""); // Arama terimini sıfırla
+    };
+
+
     const handleLogout = async () => {
         try {
             await auth.signOut(); // Oturumu kapat
@@ -42,10 +50,13 @@ function Header() {
     return (
         <header className="flex items-center justify-between p-4 bg-white shadow-md">
             {/* Logo ve Başlık */}
-            <div className="flex items-center space-x-2">
-
-                {/*bg-clip-text bg-gradient-to-r from-[#114224] to-[#2CA459]*/}
-                <span className="text-3xl font-bold bg-clip-text bg-[#114224]">404 Academy</span>
+            <div className="flex items-center space-x-1">
+                {/*font-leckerli*/}
+                <Link to="/app/home"
+                      onClick={() => setSearchTerm("")} // Arama çubuğunu sıfırla
+                      className="hover:text-purple-600 text-2xl font-leckerli font-bold text-gray-600">
+                    404 Academy
+                </Link>
             </div>
 
             {/* Menü Öğeleri */}
@@ -54,7 +65,7 @@ function Header() {
                 <div className="relative">
                     <button
                         onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                        className="hover:text-purple-600"
+                        className="hover:text-purple-600 "
                     >
                         Categories ▾
                     </button>
@@ -81,13 +92,13 @@ function Header() {
                         </div>
                     )}
                 </div>
-                <Link to="/teach" className="hover:text-purple-600">
+                <Link to="/app/home/teach" className="hover:text-purple-600">
                     Teach
                 </Link>
-                <Link to="/contact" className="hover:text-purple-600">
+                <Link to="/app/home/contact" className="hover:text-purple-600">
                     Contact Us
                 </Link>
-                <Link to="/about" className="hover:text-purple-600">
+                <Link to="/app/home/about" className="hover:text-purple-600">
                     About Us
                 </Link>
             </nav>
@@ -95,17 +106,11 @@ function Header() {
             {/* Arama Çubuğu ve Profil */}
             <div className="flex items-center space-x-6">
                 {/* Arama Çubuğu */}
-                <div className="relative">
-                    <input
-                        type="text"
-                        placeholder="Search Anything"
-                        className="px-4 py-2 w-64 border rounded-full focus:outline-none focus:ring-2 focus:ring-purple-600"
-                    />
-                    <span className="absolute right-3 top-2.5 text-gray-500">
-                        🔍
-                    </span>
-                </div>
-
+                <SearchBar
+                    searchTerm={searchTerm}
+                    onSearchChange={(term) => setSearchTerm(term)} // Arama terimini güncelle
+                    onClear={onClear} // Arama çubuğunu sıfırla
+                />
                 {/* Profil Dropdown */}
                 {userData && (
                     <div className="relative">
@@ -115,12 +120,7 @@ function Header() {
                         >
                             {/* Profil ve Logo İçeren Container */}
                             <div className="profile-container relative">
-                                {/* Logo */}
-                                <img
-                                    src="/images/logo.png"
-                                    alt="Logo"
-                                    className="logo-image absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1"
-                                />
+
 
                                 {/* Profil Resmi */}
                                 <img
@@ -159,7 +159,9 @@ function Header() {
                     </div>
                 )}
 
+
             </div>
+
         </header>
     );
 }

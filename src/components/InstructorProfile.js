@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import DOMPurify from "dompurify";
-import { FaStar } from "react-icons/fa"; // For star icons
+import { FaStar } from "react-icons/fa";
 
 function InstructorProfile() {
     const { instructorId } = useParams();
@@ -12,6 +12,8 @@ function InstructorProfile() {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showFullDescription, setShowFullDescription] = useState(false);
+
+
 
     useEffect(() => {
         const fetchInstructorDetails = async () => {
@@ -74,6 +76,7 @@ function InstructorProfile() {
             : instructor.description;
 
     return (
+
         <section className="py-12 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4">
                 {/* Main Content */}
@@ -159,7 +162,7 @@ function InstructorProfile() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 {courses.map((course) => (
                                     <Link
-                                        to={`/course/${course.id}`}
+                                        to={`/app/home/instructor/${instructor.id}/course/${course.id}`}
                                         key={course.id}
                                         className="bg-white rounded-lg shadow hover:shadow-md p-4"
                                     >
