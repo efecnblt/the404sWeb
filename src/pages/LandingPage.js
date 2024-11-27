@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import SearchBar from "../components/SearchBar";
+import '../App.css'
 
 const LandingPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -191,5 +192,4 @@ const LandingPage = () => {
         </div>
     );
 };
-
 export default LandingPage;
