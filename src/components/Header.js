@@ -1,17 +1,16 @@
-import React, {useEffect, useState} from "react";
-import {Link, useLocation, useNavigate} from "react-router-dom";
-import {auth, db} from "../firebase/firebaseConfig";
-import {doc, getDoc} from "firebase/firestore";
-import {onAuthStateChanged} from "firebase/auth";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { auth, db } from "../firebase/firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 import SearchBar from "./SearchBar";
 
 function Header() {
     const [userData, setUserData] = useState(null);
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState(""); // Arama terimi
+    const [searchTerm, setSearchTerm] = useState(""); 
     const navigate = useNavigate();
-
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -26,7 +25,7 @@ function Header() {
                     console.error("Error fetching user data:", error);
                 }
             } else {
-                setUserData(null); // Kullanıcı oturumu kapattığında
+                setUserData(null);
             }
         });
 
@@ -34,38 +33,42 @@ function Header() {
     }, []);
 
     const onClear = () => {
-        setSearchTerm(""); // Arama terimini sıfırla
+        setSearchTerm("");
     };
-
 
     const handleLogout = async () => {
         try {
-            await auth.signOut(); // Oturumu kapat
-            navigate("/"); // Landing Page'e yönlendir
+            await auth.signOut();
+            navigate("/");
         } catch (error) {
             console.error("Error during logout:", error);
         }
     };
 
+    /**
+     * Function to check if the user is logged in and return a boolean
+     */
+    const isLoggedIn = () => {
+        return !!userData;
+    };
+
     return (
         <header className="flex items-center justify-between p-4 bg-white shadow-md">
-            {/* Logo ve Başlık */}
             <div className="flex items-center space-x-1">
-                {/*font-leckerli*/}
-                <Link to="/app/home"
-                      onClick={() => setSearchTerm("")} // Arama çubuğunu sıfırla
-                      className="hover:text-purple-600 text-2xl font-leckerli font-bold text-gray-600">
+                <Link
+                    to="/app/home"
+                    onClick={() => setSearchTerm("")}
+                    className="hover:text-purple-600 text-2xl font-leckerli font-bold text-gray-600"
+                >
                     404 Academy
                 </Link>
             </div>
 
-            {/* Menü Öğeleri */}
             <nav className="flex items-center space-x-6 text-gray-700 relative">
-                {/* Categories Dropdown */}
                 <div className="relative">
                     <button
                         onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                        className="hover:text-purple-600 "
+                        className="hover:text-purple-600"
                     >
                         Categories ▾
                     </button>
@@ -103,37 +106,25 @@ function Header() {
                 </Link>
             </nav>
 
-            {/* Arama Çubuğu ve Profil */}
             <div className="flex items-center space-x-6">
-                {/* Arama Çubuğu */}
                 <SearchBar
                     searchTerm={searchTerm}
-                    onSearchChange={(term) => setSearchTerm(term)} // Arama terimini güncelle
-                    onClear={onClear} // Arama çubuğunu sıfırla
+                    onSearchChange={(term) => setSearchTerm(term)}
+                    onClear={onClear}
                 />
-                {/* Profil Dropdown */}
-                {userData && (
+                {isLoggedIn() ? (
                     <div className="relative">
                         <button
                             onClick={() => setIsProfileOpen(!isProfileOpen)}
                             className="flex items-center space-x-2"
                         >
-                            {/* Profil ve Logo İçeren Container */}
-                            <div className="profile-container relative">
-
-
-                                {/* Profil Resmi */}
-                                <img
-                                    src={userData.image_url || "https://via.placeholder.com/40"}
-                                    alt="Profile"
-                                    className="profile-image w-12 h-12 rounded-full border-4 border-white shadow-lg"
-                                />
-
-                            </div>
-                            {/* Kullanıcı Adı */}
+                            <img
+                                src={userData?.image_url || "https://via.placeholder.com/40"}
+                                alt="Profile"
+                                className="w-12 h-12 rounded-full border-4 border-white shadow-lg"
+                            />
                             <span className="text-sm font-bold">{userData.name}</span>
                         </button>
-                        {/* Profil Açılır Kart */}
                         {isProfileOpen && (
                             <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-md w-48">
                                 <Link
@@ -157,11 +148,17 @@ function Header() {
                             </div>
                         )}
                     </div>
+                ) : (
+                    <div>
+                        <Link to="/login" className="hover:text-blue-500">
+                            Login
+                        </Link>
+                        <Link to="/signup" className="hover:text-blue-500">
+                            Register
+                        </Link>
+                    </div>
                 )}
-
-
             </div>
-
         </header>
     );
 }

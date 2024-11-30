@@ -7,7 +7,7 @@ function CoursesSection() {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Listeyi karıştırma fonksiyonu (Fisher-Yates Shuffle)
+    // Shuffle function (Fisher-Yates Shuffle)
     const shuffleArray = (array) => {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -53,28 +53,29 @@ function CoursesSection() {
     return (
         <section className="py-12 bg-gray-50">
             <h2 className="text-3xl font-bold text-center mb-6">New Courses</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {courses.slice(0, 8).map((course) => (
                     <div
                         key={course.id}
                         className="bg-white rounded-lg shadow hover:shadow-md overflow-hidden"
                     >
-                        {/* Resim */}
+                        {/* Image */}
                         <img
                             src={course.image_url || "https://via.placeholder.com/400"}
                             alt={course.name}
                             className="w-full h-40 object-cover"
                         />
-                        {/* Kurs Bilgileri */}
+                        {/* Course Details */}
                         <div className="p-4">
-                            {/* Başlık */}
+                            {/* Title */}
                             <h3 className="text-lg font-semibold text-gray-800 truncate">
                                 {course.name}
                             </h3>
-                            {/* Açıklama */}
+                            {/* Description */}
                             <p className="text-sm text-gray-600 mt-2 line-clamp-2">
                                 {course.description}
                             </p>
-                            {/* Alt Bilgiler */}
+                            {/* Author and Level */}
                             <div className="flex items-center justify-between mt-4 text-gray-600 text-sm">
                                 <span className="font-medium">{course.authorName}</span>
                                 <span className="bg-gray-100 px-2 py-1 rounded text-xs">
@@ -93,9 +94,8 @@ function CoursesSection() {
                                     </svg>
                                     <span className="ml-1">{course.rating}</span>
                                 </div>
-                                {/* Buton */}
+                                {/* Button */}
                                 <Link
-
                                     to={`/app/home/course/${course.id.split(".")[0]}/${course.id.split(".")[1]}`}
                                     className="bg-purple-600 text-white flex items-center justify-center gap-2 text-sm px-4 py-2 rounded-lg hover:bg-purple-700"
                                 >
