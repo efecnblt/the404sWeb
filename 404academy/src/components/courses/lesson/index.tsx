@@ -1,7 +1,7 @@
-import FooterOne from "../../../layouts/footers/FooterOne"
+
 import HeaderOne from "../../../layouts/headers/HeaderOne"
 import LessonArea from "./LessonArea"
-import {AuthProvider} from "../../../firebase/AuthContext.tsx";
+import FooterThree from "../../../layouts/footers/FooterThree.tsx";
 
 const Lesson = () => {
    return (
@@ -11,7 +11,7 @@ const Lesson = () => {
          <main className="main-area fix">
             <LessonArea />
          </main>
-         <FooterOne style={false} style_2={true} />
+         <FooterThree/>
 
       </>
    )

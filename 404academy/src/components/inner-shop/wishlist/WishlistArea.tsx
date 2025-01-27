@@ -2,12 +2,16 @@ import { useDispatch } from "react-redux";
 import UseWishlistInfo from "../../../hooks/UseWishlistInfo";
 import { Link } from "react-router-dom";
 import { addToCart } from "../../../redux/features/cartSlice";
-import { removeFromWishlist } from "../../../redux/features/wishlistSlice";
+import {useAuth} from "../../../firebase/AuthContext.tsx";
+import {removeFavorite} from "../../../redux/features/wishlistSlice.ts";
 
 const WishlistArea = () => {
 
    const { wishlistItems } = UseWishlistInfo();
    const dispatch = useDispatch();
+
+    const { user } = useAuth();
+    const studentId = user?.studentId;
 
    return (
       <div className="cart__area section-py-120">
@@ -16,8 +20,8 @@ const WishlistArea = () => {
                <div className="mb-30">
                   <div className="empty_bag text-center">
                      <p className="py-3">Your Wishlist is Empty</p>
-                     <Link to={"/shop"}>
-                        <button className="btn">Go To Shop</button>
+                     <Link to={"/courses"}>
+                        <button className="btn">Go To All Courses</button>
                      </Link>
                   </div>
                </div>
@@ -35,20 +39,31 @@ const WishlistArea = () => {
                            </tr>
                         </thead>
                         <tbody>
+
                            {wishlistItems.map((item: any) => (
+                               console.log(item),
                               <tr key={item.id}>
                                  <td className="product__thumb">
-                                    <Link to={`/shop-details/${item.id}`}><img src={item.thumb} alt="cart" /></Link>
+                                    <Link to={`/course-details/${item.authorId}/${item.id}`}><img src={item.thumb} alt="cart" /></Link>
                                  </td>
                                  <td className="product__name">
-                                    <Link to={`/shop-details/${item.id}`}>{item.title}</Link>
+                                    <Link to={`/course-details/${item.authorId}/${item.id}`}>{item.title}</Link>
                                  </td>
-                                 <td className="product__price">${item.price}.00</td>
+                                 <td className="product__price">${item.price}</td>
                                  <td className="product__cart-btn">
-                                    <button onClick={() => dispatch(addToCart(item))} className="btn">Add To Cart</button>
+                                    <button onClick={() => dispatch(addToCart({
+                                        id: item.id,
+                                        title: item.title,
+                                        authorId: item.authorId,
+                                        quantity: 1,
+                                        price: item.price,
+                                        thumb: item.thumb
+                                        }
+
+                                    ))} className="btn">Add To Cart</button>
                                  </td>
                                  <td className="product__remove">
-                                    <a onClick={() => dispatch(removeFromWishlist(item))} style={{ cursor: "pointer" }}>×</a>
+                                    <a onClick={() =>  dispatch(removeFavorite(studentId, item.id)) } style={{ cursor: "pointer" }}>×</a>
                                  </td>
                               </tr>
                            ))}

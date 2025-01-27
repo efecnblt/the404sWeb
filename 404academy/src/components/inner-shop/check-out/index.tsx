@@ -1,8 +1,7 @@
-import FooterOne from "../../../layouts/footers/FooterOne"
 import HeaderOne from "../../../layouts/headers/HeaderOne"
 import BreadcrumbOne from "../../common/breadcrumb/BreadcrumbOne"
 import CheckOutArea from "./CheckOutArea"
-import {AuthProvider} from "../../../firebase/AuthContext.tsx";
+import FooterThree from "../../../layouts/footers/FooterThree.tsx";
 
 const CheckOut = () => {
    return (
@@ -13,7 +12,7 @@ const CheckOut = () => {
             <BreadcrumbOne title="check-out" sub_title="check-out" />
             <CheckOutArea />
          </main>
-         <FooterOne style={false} style_2={false} />
+         <FooterThree />
 
       </>
    )

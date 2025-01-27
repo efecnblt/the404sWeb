@@ -3,6 +3,7 @@ import FooterOne from '../../../layouts/footers/FooterOne'
 import HeaderOne from '../../../layouts/headers/HeaderOne'
 import DashboardHomeArea from './DashboardHomeArea'
 import {AuthProvider} from "../../../firebase/AuthContext.tsx";
+import FooterThree from "../../../layouts/footers/FooterThree.tsx";
 
 const DashboardHome = () => {
   return (
@@ -13,7 +14,7 @@ const DashboardHome = () => {
         <DashboardBreadcrumb />
         <DashboardHomeArea />
       </main>
-      <FooterOne />
+      <FooterThree />
 
     </>
   )

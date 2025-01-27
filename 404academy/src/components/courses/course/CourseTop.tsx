@@ -1,6 +1,5 @@
 import { ChangeEvent, useState } from "react";
-import { useSelector } from "react-redux";
-import { Course, selectCourses } from "../../../redux/features/courseSlice";
+import { Course } from "../../../redux/features/courseSlice";
 
 interface CourseTopProps {
    startOffset: number;
@@ -9,6 +8,7 @@ interface CourseTopProps {
    setCourses: (courses: Course[]) => void;
    handleTabClick: (index: number) => void;
    activeTab: number;
+   setSelected: (value: string) => void; // Yeni prop
 }
 
 interface TitleType {
@@ -35,45 +35,13 @@ const tab_title: TitleType[] = [
    },
 ];
 
-const CourseTop = ({ startOffset, endOffset, totalItems, setCourses, handleTabClick, activeTab }: CourseTopProps) => {
+const CourseTop = ({ startOffset, endOffset, totalItems, handleTabClick, activeTab, setSelected  }: CourseTopProps) => {
 
-   const allCourses = useSelector(selectCourses);
-   const [selected, setSelected] = useState('');
 
    const selectHandler = (event: ChangeEvent<HTMLSelectElement>) => {
-      const select = event.target.value;
-      setSelected(select);
-
-      let sortedCourses = [...allCourses];
-
-      switch (select) {
-         // case 'popular':
-         //    sortedCourses = sortedCourses
-         //       .filter(item => item.popular)
-         //       .sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-         //    break;
-         case 'popular':
-            sortedCourses = sortedCourses
-               .filter(item => item.popular)
-               .sort((a, b) => {
-                  const aPopular = parseFloat(a.popular || "0");
-                  const bPopular = parseFloat(b.popular || "0");
-                  return bPopular - aPopular;
-               });
-            break;
-
-         case 'price':
-            sortedCourses = sortedCourses.sort((a, b) => a.price - b.price);
-            break;
-         case 'rating':
-            sortedCourses = sortedCourses.sort((a, b) => b.rating - a.rating);
-            break;
-         default:
-            sortedCourses = allCourses;
-            break;
-      }
-      setCourses(sortedCourses);
+      setSelected(event.target.value); // Seçimi yukarıya gönder
    };
+
 
    return (
       <div className="courses-top-wrap courses-top-wrap">
@@ -88,18 +56,20 @@ const CourseTop = ({ startOffset, endOffset, totalItems, setCourses, handleTabCl
                   <div className="courses-top-right m-0 ms-md-auto">
                      <span className="sort-by">Sort By:</span>
                      <div className="courses-top-right-select">
-                        <select onChange={selectHandler} value={selected} name="orderby" className="orderby">
+                        <select onChange={selectHandler}  name="orderby" className="orderby">
                            <option value="">Default sorting</option>
-                           <option value="popular">Sort by popularity</option>
-                           <option value="price">Sort by price</option>
-                           <option value="rating">Sort by rating</option>
+                           <option value="popular">Sort by Popularity</option>
+                           <option value="price-asc">Sort by Price: Low to High</option>
+                           <option value="price-desc">Sort by Price: High to Low</option>
+                           <option value="rating">Sort by Rating</option>
+                           <option value="students">Sort by Student Count</option>
                         </select>
                      </div>
                   </div>
                   <ul className="nav nav-tabs courses__nav-tabs" id="myTab" role="tablist">
                      {tab_title.map((tab, index) => (
-                        <li key={index} onClick={() => handleTabClick(index)} className="nav-item" role="presentation">
-                           <button className={`nav-link ${activeTab === index ? "active" : ""}`}>{tab.icon}</button>
+                         <li key={index} onClick={() => handleTabClick(index)} className="nav-item" role="presentation">
+                         <button className={`nav-link ${activeTab === index ? "active" : ""}`}>{tab.icon}</button>
                         </li>
                      ))}
                   </ul>

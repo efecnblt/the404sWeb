@@ -1,58 +1,38 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import { Link } from 'react-router-dom';
+import {useEffect, useState} from "react";
+import axios from "axios";
 
-interface DatatYpe {
-   id: number;
-   icon: string;
-   title: string;
-   total: string;
-}
+const iconMap: { [key: string]: string } = {
+   "Cyber Security": "fas fa-shield-alt",
+   "Front-end Developer": "fas fa-code",
+   "Ethical Hacking": "fas fa-user-secret",
+   "Phishing Awareness": "fas fa-fish",
+   "Network Defense": "fas fa-network-wired",
+   "Cloud Security": "fas fa-cloud",
+   "Web Security": "fas fa-globe",
+   "Mobile Security": "fas fa-mobile-alt",
+   "DevOps Security": "fas fa-tools",
+   "Application Security": "fas fa-lock",
+   "AI Security": "fas fa-robot",
+   "Incident Response": "fas fa-fire-extinguisher",
+   "Compliance": "fas fa-check-circle",
+   "Cryptography": "fas fa-key",
+   "Penetration Testing": "fas fa-hammer",
+   "Threat Intelligence": "fas fa-bolt",
+   "IoT Security": "fas fa-microchip",
+   "Blockchain Security": "fas fa-cubes",
+   "Malware Analysis": "fas fa-bug",
+   "Identity and Access Management": "fas fa-user-lock",
+   "Secure Coding": "fas fa-code-branch",
+   "Data Protection": "fas fa-database",
+   "Disaster Recovery": "fas fa-sync-alt",
+   "Social Engineering": "fas fa-user-friends",
+};
 
-const category_data: DatatYpe[] = [
-   {
-      id: 1,
-      icon: "flaticon-graphic-design",
-      title: "Graphic Design",
-      total: "(22)"
-   },
-   {
-      id: 2,
-      icon: "flaticon-investment",
-      title: "Finance",
-      total: "(41)"
-   },
-   {
-      id: 3,
-      icon: "flaticon-coding",
-      title: "Development",
-      total: "(29)"
-   },
-   {
-      id: 4,
-      icon: "flaticon-email",
-      title: "Marketing",
-      total: "(31)"
-   },
-   {
-      id: 5,
-      icon: "flaticon-fashion",
-      title: "Life Style",
-      total: "(23)"
-   },
-   {
-      id: 6,
-      icon: "flaticon-interaction",
-      title: "Management",
-      total: "(19)"
-   },
-   {
-      id: 7,
-      icon: "flaticon-web-design",
-      title: "App Design",
-      total: "(18)"
-   },
-];
+
+
 
 // slider setting
 const setting = {
@@ -90,6 +70,23 @@ const setting = {
 };
 
 const Categories = () => {
+   const [categories, setCategories] = useState<any[]>([]); // Kategorileri saklamak için state
+
+   useEffect(() => {
+      const fetchCategories = async () => {
+         try {
+            // API'den kategorileri çek
+            const response = await axios.get("http://165.232.76.61:5001/api/Categories/getall");
+            console.log("Categories:", response.data); // Gelen veriyi inceleyin
+            setCategories(response.data); // Gelen kategorileri state'e ata
+         } catch (error) {
+            console.error("Error fetching categories:", error);
+         }
+      };
+
+      fetchCategories(); // Kategorileri çek
+   }, []);
+
    return (
       <section className="categories-area section-py-120">
          <div className="container">
@@ -106,15 +103,15 @@ const Categories = () => {
                <div className="col-12">
                   <div className="categories__wrap">
                      <Swiper {...setting} modules={[Navigation]} className="swiper categories-active">
-                        {category_data.map((item) => (
-                           <SwiperSlide key={item.id} className="swiper-slide">
+                        {categories.map((item) => (
+                           <SwiperSlide key={item.categoryId} className="swiper-slide">
                               <div className="categories__item">
                                  <Link to="/courses">
                                     <div className="icon">
-                                       <i className={item.icon}></i>
+                                       <i className={iconMap[item.name] || "fas fa-layer-group"}></i> {/* İkon eşleştirme */}
                                     </div>
-                                    <span className="name">{item.title}</span>
-                                    <span className="courses">{item.total}</span>
+                                    <span className="name">{item.name}</span>
+
                                  </Link>
                               </div>
                            </SwiperSlide>

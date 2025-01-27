@@ -1,7 +1,8 @@
-import React from "react";
-import {Link, useNavigate} from "react-router-dom";
-import {useAuth} from "../../firebase/AuthContext.tsx";
-import {Mosaic} from "react-loading-indicators";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useAuth } from "../../firebase/AuthContext.tsx";
+import { Mosaic } from "react-loading-indicators";
 
 interface DataType {
    id: number;
@@ -13,7 +14,7 @@ interface DataType {
       icon: string;
       title: string;
    }[];
-};
+}
 
 const sidebar_data: DataType[] = [
    {
@@ -40,28 +41,10 @@ const sidebar_data: DataType[] = [
          },
          {
             id: 4,
-            link: "/student-wishlist",
-            icon: "skillgro-label",
-            title: "Favorites",
-         },
-         /*{
-            id: 5,
-            link: "/student-review",
-            icon: "skillgro-book-2",
-            title: "Reviews",
-         },*/
-         {
-            id: 6,
             link: "/student-attempts",
             icon: "skillgro-question",
-            title: "My Quiz Attempts",
+            title: "Quizzes",
          },
-         /*{
-            id: 7,
-            link: "/student-history",
-            icon: "skillgro-satchel",
-            title: "Order History",
-         },*/
       ],
    },
    {
@@ -86,11 +69,36 @@ const sidebar_data: DataType[] = [
 ];
 
 const DashboardSidebarTwo = () => {
-   const {user, logout} = useAuth();
-
+   const { user, logout } = useAuth();
    const navigate = useNavigate();
+   const [userRole, setUserRole] = useState<string>(""); // Kullanıcı rolü için state
+   const [loadingRole, setLoadingRole] = useState<boolean>(true); // Rol yüklenme durumu
 
-   if (!user) {
+   useEffect(() => {
+      const fetchUserRole = async () => {
+         try {
+            const response = await axios.get(`http://165.232.76.61:5001/api/Users/getclaims/${user?.id}`);
+            const claims = response.data;
+            const studentClaim = claims.find((claim: { id: number; name: string }) => claim.id === 4 || claim.name === "Student");
+
+            if (studentClaim) {
+               setUserRole("Student");
+            } else {
+               setUserRole("Author");
+            }
+         } catch (error) {
+            console.error("Error fetching user claims:", error);
+         } finally {
+            setLoadingRole(false);
+         }
+      };
+
+      if (user) {
+         fetchUserRole();
+      }
+   }, [user]);
+
+   if (!user || loadingRole) {
       return (
           <div
               style={{
@@ -107,56 +115,62 @@ const DashboardSidebarTwo = () => {
    }
 
    const handleLogout = () => {
-      logout(); // Kullanıcıyı çıkar
-      navigate("/"); // Ana sayfaya yönlendir
+      logout();
+      navigate("/");
    };
 
    return (
-      <div className="col-lg-3">
-         <div className="dashboard__sidebar-wrap">
-            {sidebar_data.map((item) => (
-               <React.Fragment key={item.id}>
-                  <div className={`dashboard__sidebar-title mb-20 ${item.class_name}`}>
-                     <h6 className="title">Welcome, {user.name}</h6>
-                  </div>
-                  <nav className="dashboard__sidebar-menu">
-                     <ul className="list-wrap">
-                        {item.sidebar_details.map((list) => (
-                           <li key={list.id}>
-                              {list.title === "Logout" ? (
-                                  <button
-                                      onClick={handleLogout}
-                                      style={{
-                                         background: "none",
-                                         border: "none",
-                                         color: "gray",
-                                         cursor: "pointer",
-                                         textAlign: "left",
-                                         padding: "0",
-                                         display: "flex", // Yan yana düzen
-                                         alignItems: "center", // Dikey hizalama
-                                         gap: "8px", // İkon ve yazı arasında boşluk
-                                      }}
-                                  >
-                                     <i className={list.icon}></i>
-                                     <span>Logout</span>
-                                  </button>
+       <div className="col-lg-3">
+          <div className="dashboard__sidebar-wrap">
+             {sidebar_data.map((item) => (
+                 <React.Fragment key={item.id}>
+                    <div className={`dashboard__sidebar-title mb-20 ${item.class_name}`}>
+                       <h6 className="title">Welcome, {user.name}</h6>
+                    </div>
+                    <nav className="dashboard__sidebar-menu">
+                       <ul className="list-wrap">
+                          {item.sidebar_details.map((list) => {
+                             // Eğer kullanıcı "Student" ise "Quizzes" öğesini gizle
+                             if (userRole === "Student" && list.title === "Quizzes") {
+                                return null;
+                             }
 
-                              ) : (
-                                  <Link to={`${list.link}/${user.id}`}>
-                                     <i className={list.icon}></i>
-                                     {list.title}
-                                  </Link>
-                              )}
-                           </li>
-                        ))}
-                     </ul>
-                  </nav>
-               </React.Fragment>
-            ))}
-         </div>
-      </div>
-   )
-}
+                             return (
+                                 <li key={list.id}>
+                                    {list.title === "Logout" ? (
+                                        <button
+                                            onClick={handleLogout}
+                                            style={{
+                                               background: "none",
+                                               border: "none",
+                                               color: "gray",
+                                               cursor: "pointer",
+                                               textAlign: "left",
+                                               padding: "0",
+                                               display: "flex",
+                                               alignItems: "center",
+                                               gap: "8px",
+                                            }}
+                                        >
+                                           <i className={list.icon}></i>
+                                           <span>Logout</span>
+                                        </button>
+                                    ) : (
+                                        <Link to={`${list.link}/${user.id}`}>
+                                           <i className={list.icon}></i>
+                                           {list.title}
+                                        </Link>
+                                    )}
+                                 </li>
+                             );
+                          })}
+                       </ul>
+                    </nav>
+                 </React.Fragment>
+             ))}
+          </div>
+       </div>
+   );
+};
 
-export default DashboardSidebarTwo
+export default DashboardSidebarTwo;

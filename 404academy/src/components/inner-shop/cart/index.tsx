@@ -1,8 +1,7 @@
-import { AuthProvider } from "../../../firebase/AuthContext"
-import FooterOne from "../../../layouts/footers/FooterOne"
 import HeaderOne from "../../../layouts/headers/HeaderOne"
 import BreadcrumbOne from "../../common/breadcrumb/BreadcrumbOne"
 import CartArea from "./CartArea"
+import FooterThree from "../../../layouts/footers/FooterThree.tsx";
 
 const Cart = () => {
    return (
@@ -13,7 +12,7 @@ const Cart = () => {
             <BreadcrumbOne title="Cart" sub_title="Cart" />
             <CartArea />
          </main>
-         <FooterOne style={false} style_2={false} />
+         <FooterThree />
 
       </>
    )

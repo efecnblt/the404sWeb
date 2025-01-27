@@ -1,3 +1,5 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import { HelmetProvider } from 'react-helmet-async'
 import AppNavigation from './navigation/Navigation'

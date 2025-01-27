@@ -1,145 +1,148 @@
-import React from "react";
+// LessonFaq.tsx
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+// MUI ICONS
+import { PlayArrow, Description } from "@mui/icons-material";
 
-interface DataType {
-   id: number;
+interface VideoType {
+   videoID: number;
+   sectionID: number;
    title: string;
-   show?: string;
-   collapsed?: string;
-   count: string;
-   faq_details: {
-      class_name?: string;
-      lock: boolean;
-      title: string;
-      duration: string;
-   }[]
+   duration: number;
+   url: string;
 }
 
-const faq_data: DataType[] = [
-   {
-      id: 1,
-      title: "Introduction",
-      show: "show",
-      count: "1/3",
-      faq_details: [
-         {
-            class_name: "open-item",
-            lock: false,
-            title: "Course Installation",
-            duration: "03:03"
-         },
-         {
-            lock: true,
-            title: "Create a Simple React App",
-            duration: "07:48"
-         },
-         {
-            lock: true,
-            title: "React for the Rest of us",
-            duration: "10:48"
-         },
-      ]
-   },
-   {
-      id: 2,
-      title: "Capacitance and Inductance",
-      collapsed: "collapsed",
-      count: "1/5",
-      faq_details: [
-         {
-            lock: true,
-            title: "Course Installation",
-            duration: "03:03"
-         },
-         {
-            lock: true,
-            title: "Create a Simple React App",
-            duration: "07:48"
-         },
-         {
-            lock: true,
-            title: "React for the Rest of us",
-            duration: "10:48"
-         },
-         {
-            lock: true,
-            title: "Create a Simple React App",
-            duration: "07:48"
-         },
-         {
-            lock: true,
-            title: "React for the Rest of us",
-            duration: "10:48"
-         },
-      ]
-   },
-   {
-      id: 3,
-      title: "Final Audit",
-      collapsed: "collapsed",
-      count: "1/2",
-      faq_details: [
-         {
-            lock: true,
-            title: "Course Installation",
-            duration: "03:03"
-         },
-         {
-            lock: true,
-            title: "Create a Simple React App",
-            duration: "07:48"
-         },
-      ]
-   },
-];
+interface SectionType {
+   sectionID: number;
+   courseID: number;
+   order: number;
+   title: string;
+   videos: VideoType[];
+}
 
-const LessonFaq = () => {
+interface QuizType {
+   quizID: number;
+   sectionID: number;
+   name: string;
+   totalPoints: number;
+}
+
+interface LessonFaqProps {
+   sections: SectionType[];
+   userId: number;
+   onVideoSelect: (video: VideoType) => void;
+}
+
+// API istek fonksiyonu (değiştirmeye gerek yok)
+const fetchQuizBySectionId = async (sectionID: number): Promise<QuizType | null> => {
+   try {
+      const response = await fetch(`http://165.232.76.61:5001/api/Quiz/list-by-section/${sectionID}`);
+      const data = await response.json();
+
+      if (Array.isArray(data) && data.length > 0) {
+         return data[0];
+      }
+      return null;
+   } catch (error) {
+      console.error("Quiz fetch error: ", error);
+      return null;
+   }
+};
+
+const LessonFaq: React.FC<LessonFaqProps> = ({ sections, onVideoSelect }) => {
+   const [sectionQuizzes, setSectionQuizzes] = useState<{ [key: number]: QuizType | null }>({});
+
+   useEffect(() => {
+      const fetchAllQuizzes = async () => {
+         const quizzesMap: { [key: number]: QuizType | null } = {};
+
+         for (const section of sections) {
+            const quiz = await fetchQuizBySectionId(section.sectionID);
+            quizzesMap[section.sectionID] = quiz;
+         }
+         setSectionQuizzes(quizzesMap);
+      };
+
+      fetchAllQuizzes();
+   }, [sections]);
+
+   const handleVideoSelect = (video: VideoType) => {
+      onVideoSelect(video);
+   };
 
    return (
-      <div className="accordion" id="accordionExample">
-         {faq_data.map((item) => (
-            <div key={item.id} className="accordion-item">
-               <h2 className="accordion-header">
-                  <button className={`accordion-button ${item.collapsed}`} type="button" data-bs-toggle="collapse" data-bs-target={`#collapseOne${item.id}`} aria-expanded="true" aria-controls={`collapseOne${item.id}`}>
-                     {item.title}
-                     <span>{item.count}</span>
-                  </button>
-               </h2>
-               <div id={`collapseOne${item.id}`} className={`accordion-collapse collapse ${item.show}`} data-bs-parent="#accordionExample">
-                  <div className="accordion-body">
-                     <ul className="list-wrap">
-                        {item.faq_details.map((list, i) => (
-                           <React.Fragment key={i}>
-                              {list.lock ? (
-                                 <li className="course-item">
-                                    <Link to="#" className="course-item-link">
-                                       <span className="item-name">{list.title}</span>
+       <div className="accordion" id="accordionExample">
+          {sections.map((section, index) => {
+             const isFirstSection = index === 0;
+             const quizData = sectionQuizzes[section.sectionID];
+
+             return (
+                 <div key={section.sectionID} className="accordion-item">
+                    <h2 className="accordion-header" id={`heading${section.sectionID}`}>
+                       <button
+                           type="button"
+                           className={`accordion-button ${!isFirstSection ? "collapsed" : ""}`}
+                           data-bs-toggle="collapse"
+                           data-bs-target={`#collapseSection${section.sectionID}`}
+                           aria-expanded={isFirstSection ? "true" : "false"}
+                           aria-controls={`collapseSection${section.sectionID}`}
+                       >
+                          {section.title}
+                          <span>{`${section.videos.length} Video`}</span>
+                       </button>
+                    </h2>
+
+                    <div
+                        id={`collapseSection${section.sectionID}`}
+                        className={`accordion-collapse collapse ${isFirstSection ? "show" : ""}`}
+                        aria-labelledby={`heading${section.sectionID}`}
+                        data-bs-parent="#accordionExample"
+                    >
+                       <div className="accordion-body">
+                          <ul className="list-wrap">
+                             {/* Videolar */}
+                             {section.videos.map((video) => (
+                                 <li key={video.videoID} className="course-item open-item">
+                                    <Link
+                                        to="#"
+                                        className="course-item-link popup-video"
+                                        onClick={() => handleVideoSelect(video)}
+                                    >
+                                       {/* Play ikonu */}
+                                       <span className="item-name">{video.title}</span>
+
                                        <div className="course-item-meta">
-                                          <span className="item-meta duration">{list.duration}</span>
-                                          <span className="item-meta course-item-status">
-                                             <img src="/assets/img/icons/lock.svg" alt="icon" />
+                                          <span className="item-meta duration">
+                                             {Math.floor(video.duration / 60)}:
+                                             {(video.duration % 60).toString().padStart(2, "0")}
                                           </span>
                                        </div>
                                     </Link>
-                                 </li>) : (
-                                 <li className="course-item open-item">
-                                    <Link to="#" className="course-item-link popup-video">
-                                       <span className="item-name">Course Installation</span>
-                                       <div className="course-item-meta">
-                                          <span className="item-meta duration">03:03</span>
-                                       </div>
+                                 </li>
+                             ))}
+
+                             {/* Quiz varsa quiz item */}
+                             {quizData && (
+                                 <li className="course-item quiz-item">
+                                    <Link
+                                        to={`/quiz/${quizData.quizID}`}
+                                        className="course-item-link quiz-link"
+                                    >
+                                       <span className="item-name">
+                                          {quizData.name} - Toplam Puan: {quizData.totalPoints}
+                                       </span>
                                     </Link>
                                  </li>
-                              )}
-                           </React.Fragment>
-                        ))}
-                     </ul>
-                  </div>
-               </div>
-            </div>
-         ))}
-      </div>
-   )
-}
+                             )}
+                          </ul>
+                       </div>
+                    </div>
+                 </div>
+             );
+          })}
+       </div>
+   );
+};
 
-export default LessonFaq
+export default LessonFaq;
+

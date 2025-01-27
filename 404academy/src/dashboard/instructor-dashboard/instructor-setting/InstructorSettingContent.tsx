@@ -4,8 +4,8 @@ import InstructorSettingPassword from "./InstructorSettingPassword"
 import InstructorSettingSocialShare from "./InstructorSettingSocialShare"
 import { useState } from "react"
 
-const tab_title: string[] = ["Profile", "Password", "Social Share"];
-
+const tab_title: string[] = ["Profile"];
+//"Password", "Social Share"
 const InstructorSettingContent = ({ style }: any) => {
 
    const [activeTab, setActiveTab] = useState(0);
@@ -36,10 +36,10 @@ const InstructorSettingContent = ({ style }: any) => {
                         <InstructorSettingProfile style={style} />
                      </div>
                      <div className={`tab-pane fade ${activeTab === 1 ? 'show active' : ''}`} id="itemTwo-tab-pane" role="tabpanel" aria-labelledby="itemTwo-tab" >
-                        <InstructorSettingPassword />
+                       {/* <InstructorSettingPassword />*/}
                      </div>
                      <div className={`tab-pane fade ${activeTab === 2 ? 'show active' : ''}`} id="itemThree-tab-pane" role="tabpanel" aria-labelledby="itemThree-tab" >
-                        <InstructorSettingSocialShare />
+                       {/* {<InstructorSettingSocialShare />}*/}
                      </div>
                   </div>
                </div>

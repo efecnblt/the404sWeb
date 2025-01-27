@@ -2,7 +2,11 @@ import {useAuth} from "../../../firebase/AuthContext.tsx";
 
 const InstructorProfileContent = () => {
 
+
    const {user} = useAuth();
+   const isAuthor = user?.claims?.some(
+       (claim: any) => claim.id === 3 && claim.name === "Author"
+   );
 
    return (
       <div className="col-lg-9">
@@ -14,10 +18,10 @@ const InstructorProfileContent = () => {
                <div className="col-lg-12">
                   <div className="profile__content-wrap">
                      <ul className="list-wrap">
-                        <li><span>Name and Surname</span> {user?.name} </li>
+                        <li><span>Name and Surname</span> {user?.name + " " + user?.surname} </li>
                         <li><span>Username</span> {user?.username}</li>
                         <li><span>Email</span> {user?.email}</li>
-                        <li><span>Occupation</span> Student</li>
+                        <li><span>Occupation</span>{isAuthor ? ("Author") : ("Student") }</li>
                         <li><span>Biography</span>{user?.bio}</li>
                      </ul>
                   </div>

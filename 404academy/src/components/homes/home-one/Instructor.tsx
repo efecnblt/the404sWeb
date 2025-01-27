@@ -1,54 +1,54 @@
 import { Link } from "react-router-dom";
 import BtnArrow from "../../../svg/BtnArrow";
-import {collection, getDocs} from "firebase/firestore";
 import {useEffect, useState} from "react";
-import {db} from "../../../firebase/firebaseConfig.ts";
+import axios from "axios";
 
 
-interface DataType {
-   id: string;
-   image_url: string
+type Author = {
+   authorID: number;
    name: string;
-   designation: string;
+   biography: string;
+   departmentID: number;
    rating: number;
+   studentCount: number;
+   courseCount: number;
+   imageURL: string;
 };
 
-
+type Department = {
+   departmentID: number;
+   departmentName: string;
+};
 
 function Instructor (){
 
-   const [instructors, setInstructors] = useState([]);
+   const [authors, setAuthors] = useState<Author[]>([]);
+   const [departments, setDepartments] = useState<Department[]>([]);
+
 
    useEffect(() => {
-      const fetchInstructors = async () => {
-         try {
-            console.log("Fetching instructors from Firestore...");
-
-            const querySnapshot = await getDocs(collection(db, "authors"));
-            console.log("Query snapshot size:", querySnapshot.size);
-
-            const instructorsData = querySnapshot.docs.map((doc) => {
-               const data = doc.data();
-               console.log("Fetched document data:", data);
-
-               return {
-                  id: data.id || doc.id, // doc.id as fallback if id is missing in the data
-                  image_url: data.image_url || "", // Ensure `image_url` exists and is a string
-                  name: data.name || "", // Ensure `name` exists and is a string
-                  designation: data.department || "efe", // Default `designation` to "efe" if missing
-                  rating: data.rating || "0", // Default `rating` to "0" if missing
-               };
-            });
-
-            console.log("Processed instructors data:", instructorsData);
-
-            setInstructors(instructorsData);
-         } catch (error) {
-            console.error("Error fetching instructors: ", error);
-         }
-      };
-      fetchInstructors();
+      axios
+          .get<Author[]>("http://165.232.76.61:5001/api/Authors/getall")
+          .then((response) => {
+             setAuthors(response.data); // Gelen veriyi state'e ata
+          })
+          .catch((error) => {
+             console.error("API Hatası:", error);
+          });
+      axios
+          .get<Department[]>("http://165.232.76.61:5001/api/Departments")
+          .then((response) => {
+             setDepartments(response.data); // Departments verisini state'e ata
+          })
+          .catch((error) => {
+             console.error("Departments API Hatası:", error);
+          });
    }, []);
+
+   const getDepartmentName = (id: number): string => {
+      const department = departments.find((dept) => dept.departmentID === id);
+      return department ? department.departmentName : "Unknown Department";
+   };
 
    return (
       <section className="instructor__area">
@@ -70,11 +70,12 @@ function Instructor (){
                <div className="col-xl-8">
                   <div className="instructor__item-wrap">
                      <div className="row">
-                        {instructors.slice(0,4).map((instructor) => (
-                           <div key={instructor.id} className="col-sm-6">
+                        {authors.slice(0,4).map((author) => (
+
+                           <div key={author.authorID} className="col-sm-6">
                               <div className="instructor__item">
                                  <div className="instructor__thumb">
-                                    <Link to={`/instructor-details/${instructor.id}`}><img src={instructor.image_url} alt="img" style={{
+                                    <Link to={`/instructor-details/${author.authorID}`}><img src={author.imageURL} alt="img" style={{
                                        width: "180px",
                                        height: "180px",
                                        borderRadius: "50%",
@@ -84,10 +85,10 @@ function Instructor (){
                                     }}/></Link>
                                  </div>
                                  <div className="instructor__content">
-                                    <h2 className="title"><Link to={`/instructor-details/${instructor.id}`}>{instructor.name}</Link></h2>
-                                    <span className="designation">{instructor.designation}</span>
+                                    <h2 className="title"><Link to={`/instructor-details/${author.authorID}`}>{author.name}</Link></h2>
+                                    <span className="designation">{getDepartmentName(author.departmentID)} {/* Burada departman adı */}</span>
                                     <p className="avg-rating">
-                                       <i className="fas fa-star"></i>{instructor.rating}
+                                       <i className="fas fa-star"></i>{author.rating}
                                     </p>
 
                                  </div>

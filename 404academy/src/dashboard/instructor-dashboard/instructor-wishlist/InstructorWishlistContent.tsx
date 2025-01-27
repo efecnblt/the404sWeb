@@ -1,149 +1,70 @@
 import { Link } from "react-router-dom"
-import {collection, doc, getDoc, getDocs} from "firebase/firestore";
-import {db} from "../../../firebase/firebaseConfig.ts";
 import {useEffect, useState} from "react";
 import {useAuth} from "../../../firebase/AuthContext.tsx";
 
 
-const formatDuration = (totalSeconds: number) => {
-    if (totalSeconds <= 0) return "0s";
-
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = Math.floor(totalSeconds % 60);
-
-    let durationString = "";
-    if (hours > 0) {
-        durationString += `${hours}h `;
-    }
-    if (minutes > 0) {
-        durationString += `${minutes}m `;
-    }
-    if (seconds > 0 && hours === 0) {
-        // Sadece saat yoksa saniyeleri göster
-        durationString += `${seconds}s`;
-    }
-    return durationString.trim();
-};
 
 
-const fetchFavoritesWithDetails = async (userId: string) => {
-    try {
-        const userDocRef = doc(db, `users/${userId}`);
-        const userDoc = await getDoc(userDocRef);
 
-        if (!userDoc.exists()) {
-            console.error("Kullanıcı dokümanı bulunamadı.");
-            return [];
-        }
-
-        const userData = userDoc.data();
-        const favorites = userData.favorites ? Object.values(userData.favorites) : [];
-        console.log("Favorites:", favorites); // Favorileri kontrol etmek için
-
-        const favoriteCourses = [];
-
-        // Favoriler için kurs ve eğitmen bilgilerini çekme
-        const promises = favorites.map(async (favorite) => {
-            const { authorId, courseId } = favorite;
-
-            // Kurs ve eğitmen bilgilerini eşzamanlı olarak çekme
-            const courseDocRef = doc(db, `authors/${authorId}/courses/${courseId}`);
-            const authorDocRef = doc(db, `authors/${authorId}`);
-
-            const [courseDoc, authorDoc] = await Promise.all([
-                getDoc(courseDocRef),
-                getDoc(authorDocRef),
-            ]);
-
-            const courseData = courseDoc.exists() ? courseDoc.data() : null;
-            const authorData = authorDoc.exists() ? authorDoc.data() : null;
-
-            if (!courseData || !authorData) {
-                // Kurs veya eğitmen bilgileri bulunamadıysa, bu favoriyi atla
-                return;
-            }
-
-            // Toplam ders sayısı ve toplam süreyi hesaplamak için değişkenler
-            let totalLessons = 0;
-            let totalDurationInSeconds = 0;
-
-            // Bölümleri ve videoları çekme
-            const sectionsRef = collection(
-                db,
-                `authors/${authorId}/courses/${courseId}/sections`
-            );
-            const sectionsSnapshot = await getDocs(sectionsRef);
-
-            const sectionPromises = sectionsSnapshot.docs.map(async (sectionDoc) => {
-                const sectionId = sectionDoc.id;
-
-                // Bölüm altındaki videoları çekme
-                const videosRef = collection(
-                    db,
-                    `authors/${authorId}/courses/${courseId}/sections/${sectionId}/videos`
-                );
-                const videosSnapshot = await getDocs(videosRef);
-
-                totalLessons += videosSnapshot.size;
-
-                // Videoların sürelerini toplama
-                videosSnapshot.docs.forEach((videoDoc) => {
-                    const videoData = videoDoc.data();
-                    // `duration` değerini doğru birime çevirin
-                    const durationInSeconds = videoData.duration * 1; // Örneğin, dakika ise saniyeye çevir
-                    totalDurationInSeconds += durationInSeconds;
-
-
-                });
-            });
-
-            await Promise.all(sectionPromises);
-
-            // Toplam süreyi okunabilir formata dönüştürme (örn: "2h 30m")
-            const totalDuration = formatDuration(totalDurationInSeconds);
-
-            // Kurs verilerine toplam ders sayısı ve süreyi ekleme
-            const enrichedCourseData = {
-                ...courseData,
-                totalLessons,
-                totalDuration,
-            };
-
-            favoriteCourses.push({
-                authorId,
-                courseId,
-                courseData: enrichedCourseData,
-                authorData,
-            });
-        });
-
-        await Promise.all(promises);
-
-        return favoriteCourses;
-    } catch (error) {
-        console.error("Favoriler çekilirken hata oluştu:", error);
-        return [];
-    }
-};
 
 
 const InstructorWishlistContent = () => {
     const [favoriteCourses, setFavoriteCourses] = useState<any[]>([]);
     const { user } = useAuth();
 
+    const fetchFavoritesWithDetails = async (studentId: number) => {
+        try {
+            const favoriteCourses = [];
+
+            // 1. Kullanıcının favori kurslarını kontrol etmek için API çağrısı yap
+            const response = await fetch(`http://165.232.76.61:5001/api/FavoriteCourses/getFavorites?studentId=${studentId}`);
+            const studentCourses = await response.json();
+
+            if (!studentCourses || studentCourses.length === 0) {
+                console.error("Favoriler bulunamadı.");
+                return [];
+            }
+
+            // 2. Her favori kurs için detayları çekmek
+            const promises = studentCourses.map(async (favorite: any) => {
+                const courseId = favorite.courseID;
+
+                // Kurs bilgilerini al
+                const courseResponse = await fetch(`http://165.232.76.61:5001/api/Courses/getbyid?id=${courseId}`);
+                const courseData = await courseResponse.json();
+
+                const authorId = courseData.data.authorId;
+
+                const authorResponse = await fetch(`http://165.232.76.61:5001/api/Authors/getbyid/${authorId}`);
+                const authorData = await authorResponse.json();
+
+                return {
+                    courseId,
+                    courseData,
+                    authorData,
+                };
+            });
+
+            // Tüm favori kursların detaylarını bekle
+            const detailedFavorites = await Promise.all(promises);
+            return detailedFavorites;
+        } catch (error) {
+            console.error("Favoriler çekilirken hata oluştu:", error);
+            return [];
+        }
+    };
 
 
     useEffect(() => {
         const getFavorites = async () => {
-            if (user?.id) {
-                const favorites = await fetchFavoritesWithDetails(user.id);
+            if (user?.studentId) {
+                const favorites = await fetchFavoritesWithDetails(user.studentId);
                 setFavoriteCourses(favorites);
             }
         };
 
         getFavorites();
-    }, [user?.id]);
+    }, [user?.studentId]);
 
 
     return (
@@ -161,12 +82,12 @@ const InstructorWishlistContent = () => {
                                     <div className="courses__item courses__item-two shine__animate-item">
                                         <div className="courses__item-thumb courses__item-thumb-two">
                                             <Link
-                                                to={`/course-details/${item.authorId}/${item.courseId}`}
+                                                to={`/course-details/${authorData.authorId}/${item.courseId}`}
                                                 className="shine__animate-link"
                                             >
                                                 <img
                                                     src={
-                                                        courseData?.image_url ||
+                                                        courseData?.data.image_url ||
                                                         "https://via.placeholder.com/300"
                                                     }
                                                     alt="Kurs Görseli"
@@ -191,9 +112,9 @@ const InstructorWishlistContent = () => {
                                             </ul>
                                             <h5 className="title">
                                                 <Link
-                                                    to={`/course-details/${item.authorId}/${item.courseId}`}
+                                                    to={`/course-details/${item.courseId}`}
                                                 >
-                                                    {courseData?.name || "Kurs Başlığı"}
+                                                    {courseData?.data.name || "Kurs Başlığı"}
                                                 </Link>
                                             </h5>
                                             <div className="courses__item-content-bottom">

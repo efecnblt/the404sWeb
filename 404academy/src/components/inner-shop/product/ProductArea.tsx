@@ -62,7 +62,7 @@ const ProductArea = () => {
                               <div key={item.id} className="col-xl-4 col-sm-6">
                                  <div className="shop-item">
                                     <div className="shop-thumb">
-                                       <Link to={`/shop-details/${item.id}`}>
+                                       <Link to={`/course-details/${item.authorId}/${item.id}`}>
                                           <img src={item.thumb} alt="img" />
                                        </Link>
                                        {item.tag && <span className="flash-sale">{item.tag}</span>}
@@ -70,16 +70,16 @@ const ProductArea = () => {
                                        <ul className="list-wrap shop-action">
                                           <li><a onClick={() => handleAddToCart(item)} className="cart-btn-add" style={{ cursor: "pointer" }}><i className="fas fa-shopping-cart"></i></a></li>
                                           <li><a onClick={() => handleAddToWishlist(item)} className="cart-btn-add" style={{ cursor: "pointer" }}><i className="far fa-heart"></i></a></li>
-                                          <li><Link to={`/shop-details/${item.id}`}><i className="far fa-eye"></i></Link></li>
+                                          <li><Link to={`/course-details/${item.authorId}/${item.id}`}><i className="far fa-eye"></i></Link></li>
                                        </ul>
                                     </div>
                                     <div className="shop-content">
-                                       <h3 className="title"><Link to={`/shop-details/${item.id}`}>{item.title}</Link></h3>
+                                       <h3 className="title"><Link to={`/course-details/${item.authorId}/${item.id}`}>{item.title}</Link></h3>
                                        <div className="rating">
                                           <Rating initialValue={item.rating} size={20} readonly={true} />
                                           <span className="avg">({item.rating})</span>
                                        </div>
-                                       <h4 className="price">${item.price}.00{item.old_price && <del>${item.old_price}.00</del>}</h4>
+                                       <h4 className="price">${item.price}{item.old_price && <del>${item.old_price}.00</del>}</h4>
                                     </div>
                                  </div>
                               </div>

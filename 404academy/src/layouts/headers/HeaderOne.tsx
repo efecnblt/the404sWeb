@@ -7,6 +7,7 @@ import InjectableSvg from "../../hooks/InjectableSvg"
 import CustomSelect from "../../ui/CustomSelect"
 import TotalWishlist from "../../components/common/TotalWishlist"
 import { useAuth } from "../../firebase/AuthContext";
+import TotalCart from "../../components/common/TotalCart.tsx";
 
 const HeaderOne = () => {
 
@@ -21,6 +22,9 @@ const HeaderOne = () => {
    const { sticky } = UseSticky();
    const [isActive, setIsActive] = useState<boolean>(false);
 
+   const isAuthor = user?.claims?.some(
+       (claim: any) => claim.id === 3 && claim.name === "Author"
+   );
 
    return (
       <>
@@ -51,39 +55,79 @@ const HeaderOne = () => {
                               </div>
                               <div className="tgmenu__action">
                                  <ul className="list-wrap">
+                                    <li className="mini-cart-icon">
+                                       <Link to="/cart" className="cart-count">
+                                          <InjectableSvg src="/assets/img/icons/cart.svg" className="injectable"
+                                                         alt="img"/>
+                                          <TotalCart/>
+                                       </Link>
+                                    </li>
                                     <li className="wishlist-icon">
                                        <Link to="/wishlist" className="cart-count">
                                           <InjectableSvg src="/assets/img/icons/heart.svg" className="injectable"
                                                          alt="img"/>
                                           <TotalWishlist/>
+
                                        </Link>
                                     </li>
+
                                     {loading ? (
-                                            // Oturum durumu belirlenene kadar hiçbir şey göstermeyin veya yükleniyor göstergesi
-                                            <li className="header-btn login-btn">
-                                               {/* İsterseniz bir yükleniyor göstergesi koyabilirsiniz */}
-                                               <span></span>
-                                            </li>
-                                        ): user ? (
-                                        <li>
-                                           {/* Kullanıcı Resmi */}
-                                           <Link to={`/student-profile/${user.id}`}>
+                                        // Oturum durumu belirlenene kadar hiçbir şey göstermeyin veya yükleniyor göstergesi
+                                        <li className="header-btn login-btn">
+                                           {/* İsterseniz bir yükleniyor göstergesi koyabilirsiniz */}
+                                           <span>
 
-                                              <img
-                                               src={user.profileImage}
-                                               alt="Profile"
-                                               style={{
-                                                  width: "45px",
-                                                  height: "45px",
-                                                  borderRadius: "50%",
-                                                  marginRight: "8px",
-                                                  objectFit: "cover",
-                                                  border: "1px solid #ccc",
-                                               }}
-                                           />
-
-                                           </Link>
+                                               </span>
                                         </li>
+                                    ) : user ? (
+
+                                        <>
+                                           {isAuthor && (
+                                               <li>
+
+                                                  <Link to={`/instructor-profile/${user.encodedStudentId}`}>
+
+                                                     <img
+                                                         src={user.imageUrl}
+                                                         alt="Profile"
+                                                         style={{
+                                                            width: "45px",
+                                                            height: "45px",
+                                                            borderRadius: "50%",
+                                                            marginRight: "8px",
+                                                            objectFit: "cover",
+                                                            border: "1px solid #ccc",
+                                                         }}
+                                                     />
+
+                                                  </Link>
+                                               </li>
+                                           )}
+                                           {!isAuthor && (
+                                               <li>
+
+                                                  <Link to={`/student-profile/${user.encodedStudentId}`}>
+
+                                                     <img
+                                                         src={user.imageUrl}
+                                                         alt="Profile"
+                                                         style={{
+                                                            width: "45px",
+                                                            height: "45px",
+                                                            borderRadius: "50%",
+                                                            marginRight: "8px",
+                                                            objectFit: "cover",
+                                                            border: "1px solid #ccc",
+                                                         }}
+                                                     />
+
+                                                  </Link>
+                                               </li>
+                                           )}
+
+                                        </>
+
+
                                     ) : (
                                         <>
                                            <li className="header-btn login-btn">
@@ -99,9 +143,11 @@ const HeaderOne = () => {
                                  </ul>
                               </div>
                               <div className="mobile-login-btn">
-                                 <Link to="/login"><InjectableSvg src="/assets/img/icons/user.svg" alt="" className="injectable" /></Link>
+                                 <Link to="/login"><InjectableSvg src="/assets/img/icons/user.svg" alt=""
+                                                                  className="injectable"/></Link>
                               </div>
-                              <div onClick={() => setIsActive(true)} className="mobile-nav-toggler"><i className="tg-flaticon-menu-1"></i></div>
+                              <div onClick={() => setIsActive(true)} className="mobile-nav-toggler"><i
+                                  className="tg-flaticon-menu-1"></i></div>
                            </nav>
                         </div>
                      </div>

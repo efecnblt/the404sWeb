@@ -592,7 +592,7 @@
                 flex-grow: 1;
                 margin-left: -1px;
                 @media #{$md} {
-                    display: none;
+                    display: flex;
                 }
             }
             & input {

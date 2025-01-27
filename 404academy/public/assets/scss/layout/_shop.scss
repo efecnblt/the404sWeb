@@ -573,7 +573,17 @@ button.cart-btn-add,
 a.show-more-btn{
     color: var(--tg-theme-primary);
 }
+.show-more-btn {
+    background-color: transparent;
+    outline: none; /* Removes focus border */
+    border: none;  /* Ensures no extra border */
+}
+
+.show-more-btn:focus {
+    outline: none; /* Removes focus border on focus */
+}
 a.show-more-btn.active{
+
     color: var(--tg-theme-secondary);
 }
 a.cart-btn-add:hover,

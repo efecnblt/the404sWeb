@@ -1,8 +1,8 @@
-import FooterOne from "../../../layouts/footers/FooterOne"
 import HeaderOne from "../../../layouts/headers/HeaderOne"
 import BreadcrumbOne from "../../common/breadcrumb/BreadcrumbOne"
 import ProductArea from "./ProductArea"
-import {AuthProvider} from "../../../firebase/AuthContext.tsx";
+import FooterThree from "../../../layouts/footers/FooterThree.tsx";
+
 
 const Product = () => {
    return (
@@ -13,7 +13,7 @@ const Product = () => {
             <BreadcrumbOne title="Shop Page" sub_title="Shop Page" />
             <ProductArea />
          </main>
-         <FooterOne style={false} style_2={false} />
+         <FooterThree />
 
       </>
    )

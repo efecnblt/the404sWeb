@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from 'swiper/modules';
 import {useAuth} from "../../../firebase/AuthContext.tsx";
-import {collection, doc, getDoc, getDocs} from "firebase/firestore";
-import {db} from "../../../firebase/firebaseConfig.ts";
+import axios from "axios";
+import {Mosaic} from "react-loading-indicators";
 
 const enrolled_courses: string[] = ["Enrolled Courses", "Completed Courses",];
 const my_courses: string[] = ["Publish", "Pendig", "Draft",];
@@ -41,86 +41,50 @@ const setting = {
 }
 
 
-// Function to fetch enrolled courses and their details, including sections and videos
-const fetchEnrolledCoursesWithDetails = async (userId: string) => {
+// Tüm kursların temel bilgilerini (ID, vb.) çeken fonksiyon
+const fetchAllCourses = async () => {
    try {
-      const userCoursesRef = collection(db, `users/${userId}/enrolledCourses`);
-      const coursesSnapshot = await getDocs(userCoursesRef);
-
-      const enrolledCourses = [];
-
-      for (const docSnap of coursesSnapshot.docs) {
-         const enrolledCourseData = docSnap.data();
-         const { courseId, authorId } = enrolledCourseData;
-
-         // Fetch course details
-         const courseDocRef = doc(
-             db,
-             `authors/${authorId}/courses/${courseId}`
-         );
-         const courseDoc = await getDoc(courseDocRef);
-         const courseData = courseDoc.exists() ? courseDoc.data() : null;
-
-         // Fetch author details
-         const authorDocRef = doc(db, `authors/${authorId}`);
-         const authorDoc = await getDoc(authorDocRef);
-         const authorData = authorDoc.exists() ? authorDoc.data() : null;
-
-         // Initialize total lessons and total duration
-         let totalLessons = 0;
-         let totalDurationInSeconds = 0;
-
-         // Fetch sections and videos
-         const sectionsRef = collection(
-             db,
-             `authors/${authorId}/courses/${courseId}/sections`
-         );
-         const sectionsSnapshot = await getDocs(sectionsRef);
-
-         for (const sectionDoc of sectionsSnapshot.docs) {
-            const sectionData = sectionDoc.data();
-            const sectionId = sectionDoc.id;
-
-            // Fetch videos in the section
-            const videosRef = collection(
-                db,
-                `authors/${authorId}/courses/${courseId}/sections/${sectionId}/videos`
-            );
-            const videosSnapshot = await getDocs(videosRef);
-
-            totalLessons += videosSnapshot.size;
-
-            // Sum up durations
-            for (const videoDoc of videosSnapshot.docs) {
-               const videoData = videoDoc.data();
-               const duration = videoData.duration || 0; // Assuming duration is in seconds
-               totalDurationInSeconds += duration;
-            }
-         }
-
-         // Convert total duration to a readable format (e.g., "2h 30m")
-         const totalDuration = formatDuration(totalDurationInSeconds);
-
-         enrolledCourses.push({
-            id: docSnap.id,
-            enrolledCourseId: docSnap.id,
-            courseId,
-            authorId,
-            courseData,
-            authorData,
-            totalLessons,
-            totalDuration,
-            ...enrolledCourseData,
-         });
-      }
-
-      console.log("Enrolled Courses with Details:", enrolledCourses);
-      return enrolledCourses;
+      const response = await axios.get(
+          "http://165.232.76.61:5001/api/Courses/getall"
+      );
+      // API'dan dönen veride 'data' altında listelenmiş olduğunu varsayıyoruz
+      return response.data.data || [];
    } catch (error) {
-      console.error("Error fetching enrolled courses with details:", error);
+      console.error("Error fetching courses:", error);
       return [];
    }
 };
+
+
+// Her bir kursun detaylarını (isim, fiyat, yazar vb.) çeken fonksiyon
+const fetchCourseById = async (courseId: number) => {
+   try {
+      const response = await axios.get(
+          `http://165.232.76.61:5001/api/Courses/getbyid?id=${courseId}`
+      );
+      // getbyid endpoint'inin "data.data" içinde döndüğünü varsayıyoruz
+      return response.data.data;
+   } catch (error) {
+      console.error(`Error fetching course details for ID ${courseId}:`, error);
+      return null;
+   }
+};
+
+// Kursa kayıtlı öğrencileri çeken fonksiyon
+const fetchEnrolledStudents = async (courseId: number) => {
+   try {
+      const response = await axios.get(
+          `http://165.232.76.61:5001/api/StudentCourses/getstudentsbycourse?courseId=${courseId}`
+      );
+      return response.data || [];
+   } catch (error) {
+      console.error(`Error fetching students for course ${courseId}:`, error);
+      return [];
+   }
+};
+
+
+
 // Function to format duration from seconds to "Xh Ym" format
 const formatDuration = (totalSeconds: number) => {
    const hours = Math.floor(totalSeconds / 3600);
@@ -136,35 +100,192 @@ const formatDuration = (totalSeconds: number) => {
    return durationString.trim();
 };
 
+// 4) Author(Yazar) bilgisini çeken fonksiyon
+const fetchAuthorById = async (authorId: number) => {
+   try {
+      const response = await axios.get(
+          `http://165.232.76.61:5001/api/Authors/getbyid/${authorId}`
+      );
+      // getbyid’in "data" içinde döndüğünü varsayıyoruz
+      return response.data;
+   } catch (error) {
+      console.error(`Error fetching author details for ID ${authorId}:`, error);
+      return null;
+   }
+};
 
+// 5) Category(Kategori) bilgisini çeken fonksiyon
+const fetchCategoryById = async (categoryId: number) => {
+   try {
+      const response = await axios.get(
+          `http://165.232.76.61:5001/api/Categories/getbyid/${categoryId}`
+      );
+      // Kategori bilgisi "response.data" içinde dönüyorsa
+      return response.data;
+   } catch (error) {
+      console.error(`Error fetching category details for ID ${categoryId}:`, error);
+      return null;
+   }
+};
+
+
+const fetchSectionsAndVideos = async (courseId: number) => {
+   try {
+      const sectionsResponse = await axios.get(
+          `http://165.232.76.61:5001/api/Sections/course/${courseId}`
+      );
+      const sections = sectionsResponse.data;
+
+      let totalDurationInSeconds = 0;
+      let totalVideosCount = 0;
+      let totalQuizzesCount = 0;
+
+      await Promise.all(
+          sections.map(async (section: any) => {
+             const videosResponse = await axios.get(
+                 `http://165.232.76.61:5001/api/Videos/section/${section.sectionID}`
+             );
+             const videos = videosResponse.data;
+
+             totalVideosCount += videos.length;
+             totalDurationInSeconds += videos.reduce(
+                 (sum: number, video: any) => sum + video.duration,
+                 0
+             );
+
+             const quizzesResponse = await axios.get(
+                 `http://165.232.76.61:5001/api/Quiz/list-by-section/${section.sectionID}`
+             );
+             const quizzes = quizzesResponse.data;
+             totalQuizzesCount += quizzes.length;
+          })
+      );
+
+      return {
+         totalDurationInSeconds,
+         totalVideosCount,
+         totalQuizzesCount,
+      };
+   } catch (error) {
+      console.error("Error fetching sections or videos:", error);
+      return {
+         totalDurationInSeconds: 0,
+         totalVideosCount: 0,
+         totalQuizzesCount: 0,
+      };
+   }
+};
 
 const InstructorEnrolledCourseContent = ({ style }: any) => {
 
    const [courses, setCourses] = useState<any[]>([]);
    const { user } = useAuth();
+   const [loading, setLoading] = useState(true);
+   const [activeTab, setActiveTab] = useState(0);
+   const [isLoop, setIsLoop] = useState(false);
+
 
    useEffect(() => {
-      const getCourses = async () => {
-         if (user?.id) {
-            const enrolledCourses = await fetchEnrolledCoursesWithDetails(user.id);
-            setCourses(enrolledCourses || []);
+      setIsLoop(true);
+   }, []);
+
+   useEffect(() => {
+      const fetchEnrolledCourses = async () => {
+         setLoading(true);
+         try {
+            // 1. Tüm kursların temel bilgilerini çek
+            const allCourses = await fetchAllCourses();
+            const userEnrolledCourses: any[] = [];
+
+            // 2. Her kurs için (ID bazında) öğrencileri ve detayları çek
+            for (const course of allCourses) {
+               // Kurs ID'si
+               const courseId = course.courseID;
+               const enrolledStudents = await fetchEnrolledStudents(courseId);
+
+               // Kullanıcının bu kursa kayıtlı olup olmadığını kontrol et
+               const isUserEnrolled = enrolledStudents.some(
+                   (student: any) => student.userId === user?.id
+               );
+
+               if (isUserEnrolled) {
+                  // 3. Kursun detaylarını getById ile çek
+                  const courseDetails = await fetchCourseById(courseId);
+                  if (courseDetails) {
+                     // 4. Author bilgisini (authorId üzerinden) çek
+                     const authorInfo = await fetchAuthorById(courseDetails.authorId);
+
+                     // 5. Category bilgisini (categoryId üzerinden) çek
+                     const categoryInfo = await fetchCategoryById(
+                         courseDetails.categoryId
+                     );
+
+                     // 6. Toplam video süresi, ders (video) ve quiz sayısını çek
+                     const {
+                        totalDurationInSeconds,
+                        totalVideosCount,
+                        totalQuizzesCount,
+                     } = await fetchSectionsAndVideos(courseId);
+
+                     // Yazar bilgisi
+                     const authorName = authorInfo ? authorInfo.name : "Unknown Author";
+                     const authorImage = authorInfo
+                         ? authorInfo.imageURL
+                         : "https://via.placeholder.com/100";
+
+                     // Kategori bilgisi
+                     const categoryName = categoryInfo
+                         ? categoryInfo.name
+                         : `Category ${courseDetails.categoryId}`;
+
+                     // Toplam süreyi "Xh Ym" formatına çevirebilirsiniz
+                     const durationFormatted = formatDuration(totalDurationInSeconds);
+
+                     // userEnrolledCourses dizisine pushla
+                     userEnrolledCourses.push({
+                        enrolledCourseId: courseId, // Enrollment ID veya yoksa courseId
+                        courseId: courseDetails.courseID,
+                        authorId: courseDetails.authorId,
+                        courseData: {
+                           name: courseDetails.name,
+                           department: categoryName,
+                           image_url: courseDetails.image,
+                           price: courseDetails.price,
+                           old_price: courseDetails.discount,
+                           rating: courseDetails.rating,
+                        },
+                        authorData: {
+                           name: authorName,
+                           image_url: authorImage,
+                        },
+                        // Toplam video(lesson), toplam quiz, toplam süre
+                        totalLessons: totalVideosCount + totalQuizzesCount,
+                        totalDuration: durationFormatted, // "Xh Xm" biçiminde
+                        completed: false, // kullanıcı tamamladı mı, varsa DB'den
+                     });
+                  }
+               }
+            }
+            setCourses(userEnrolledCourses);
+         }
+         catch (error) {
+            console.error("Error fetching enrolled courses:", error);
+            setCourses([]);
+         } finally {
+            setLoading(false);
          }
       };
 
-      getCourses();
-   }, [user?.id]);
+      if (user?.studentId) {
+         fetchEnrolledCourses();
+      }
+   }, [user?.studentId]);
 
-
-   const [activeTab, setActiveTab] = useState(0);
 
    const handleTabClick = (index: number) => {
       setActiveTab(index);
    };
 
-   const [isLoop, setIsLoop] = useState(false);
-   useEffect(() => {
-      setIsLoop(true);
-   }, []);
 
    const tab_title = style ? my_courses : enrolled_courses;
 
@@ -223,7 +344,23 @@ const InstructorEnrolledCourseContent = ({ style }: any) => {
                              loop={isLoop}
                              className="swiper dashboard-courses-active"
                          >
-                            {filteredCourses.length > 0 ?  (
+                            {loading ? (
+                                    // Loading durumunda göstereceğimiz özel ekran:
+                                    <div
+                                        style={{
+                                           display: "flex",
+                                           justifyContent: "center",
+                                           alignItems: "center",
+                                           height: "100vh",
+                                           backgroundColor: "#f9f9f9",
+                                        }}
+                                    >
+                                       {/* Mosaic bileşenini import etmiş olmanız gerekiyor. */}
+                                       {/* Örn: import { Mosaic } from "react-awesome-spinners"; */}
+                                       <Mosaic color={["#33CCCC", "#33CC36", "#B8CC33", "#FCCA00"]} />
+                                    </div>
+                                ) :
+                               filteredCourses.length > 0 ?  (
                                 filteredCourses.map((course) => {
                                    const { courseData, authorData } = course;
                                    return (
@@ -234,7 +371,7 @@ const InstructorEnrolledCourseContent = ({ style }: any) => {
                                           <div className="courses__item courses__item-two shine__animate-item">
                                              <div className="courses__item-thumb courses__item-thumb-two">
                                                 <Link
-                                                    to={`/course-details/${course.authorId}/${course.courseId}`}
+                                                    to={`/lesson/${course.courseId}`}
                                                     className="shine__animate-link"
                                                 >
                                                    <img
@@ -249,24 +386,25 @@ const InstructorEnrolledCourseContent = ({ style }: any) => {
                                              <div className="courses__item-content courses__item-content-two">
                                                 <ul className="courses__item-meta list-wrap">
                                                    <li className="courses__item-tag">
-                                                      <Link to={`/course`}>
-                                                         {courseData?.department || "General"}
+                                                      <Link to={`/lesson/${course.courseId}`}>
+                                                         {courseData?.department  || "General"}
                                                       </Link>
                                                    </li>
-                                                   {courseData?.price && (
+                                                   {/*{courseData?.price && (
                                                        <li className="price">
+                                                          ${courseData.price}
                                                           {courseData.old_price && (
                                                               <del>
-                                                                 ${courseData.old_price}
+                                                                 ${(courseData.old_price + courseData.price).toFixed(2)}
                                                               </del>
                                                           )}
-                                                          ${courseData.price}
+
                                                        </li>
-                                                   )}
+                                                   )}*/}
                                                 </ul>
                                                 <h5 className="title">
                                                    <Link
-                                                       to={`/course-details/${course.authorId}/${course.courseId}`}
+                                                       to={`/lesson/${course.courseId}`}
                                                    >
                                                       {courseData?.name || "Course Title"}
                                                    </Link>

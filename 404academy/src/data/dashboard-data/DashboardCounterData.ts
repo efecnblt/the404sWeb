@@ -1,47 +1,28 @@
-interface DataType {
+export interface DataType {
    id: number;
    icon: string;
    count: number;
    title: string;
-};
+}
 
-const dashboard_count_data: DataType[] = [
+// This will be our template, actual data will be populated dynamically
+export const createDashboardData = (courseCount: number, studentCount: number, totalEarnings: number): DataType[] => [
    {
       id: 1,
-      icon: "skillgro-book",
-      count: 30,
-      title: "ENROLLED COURSES",
-   },
-   {
-      id: 2,
-      icon: "skillgro-tutorial",
-      count: 10,
-      title: "ACTIVE COURSES",
-   },
-   {
-      id: 3,
-      icon: "skillgro-diploma-1",
-      count: 7,
-      title: "COMPLETED COURSES",
-   },
-   {
-      id: 4,
-      icon: "skillgro-group",
-      count: 160,
-      title: "TOTAL STUDENTS",
-   },
-   {
-      id: 5,
       icon: "skillgro-notepad",
-      count: 30,
+      count: courseCount,
       title: "TOTAL COURSES",
    },
    {
-      id: 6,
+      id: 2,
+      icon: "skillgro-group",
+      count: studentCount,
+      title: "TOTAL STUDENTS",
+   },
+   {
+      id: 3,
       icon: "skillgro-dollar-currency-symbol",
-      count: 29000,
+      count: totalEarnings,
       title: "TOTAL EARNINGS",
    },
 ];
-
-export default dashboard_count_data;

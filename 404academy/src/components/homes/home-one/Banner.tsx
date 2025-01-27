@@ -55,15 +55,33 @@ const Banner = () => {
                         </div>
                         <div className="banner__author-item">
                            <div className="image">
-                              <img src="/assets/img/banner/banner_author01.png" alt="img"/>
+                              <img src="/assets/img/banner/ahmet.jpg" alt="img"/>
                            </div>
-                           <h6 className="name">Ecem Yılmaz</h6>
+                           <h6 className="name">Ahmet Fettahoğlu</h6>
                         </div>
                         <div className="banner__author-item">
                            <div className="image">
-                              <img src="/assets/img/banner/banner_author02.png" alt="img"/>
+                              <img src="/assets/img/banner/mertugur.jpg" alt="img"/>
                            </div>
-                           <h6 className="name">Ahmet Fettahoğlu</h6>
+                           <h6 className="name">Mert Uğur</h6>
+                        </div>
+                        <div className="banner__author-item">
+                           <div className="image">
+                              <img src="/assets/img/banner/mertcertel.jpg" alt="img"/>
+                           </div>
+                           <h6 className="name">Mert Certel</h6>
+                        </div>
+                        <div className="banner__author-item">
+                           <div className="image">
+                              <img src="/assets/img/banner/utkugokcek.jpg" alt="img"/>
+                           </div>
+                           <h6 className="name">Utku Gökçek</h6>
+                        </div>
+                        <div className="banner__author-item">
+                           <div className="image">
+                              <img src="/assets/img/banner/omercan.jpg" alt="img"/>
+                           </div>
+                           <h6 className="name">Ömer Can Atlı</h6>
                         </div>
                         <img src="/assets/img/banner/banner_shape02.svg" alt="shape"
                              className="arrow-shape tg-motion-effects3"/>

@@ -1,7 +1,4 @@
 import { useState } from "react";
-import Overview from "../course-details/Overview";
-import Reviews from "../course-details/Reviews";
-import Instructors from "../course-details/Instructors";
 
 const tab_title: string[] = ["Overview", "Instructors", "reviews"];
 
@@ -22,17 +19,7 @@ const LessonNavTav = () => {
                </li>
             ))}
          </ul>
-         <div className="tab-content" id="myTabContent">
-            <div className={`tab-pane fade ${activeTab === 0 ? 'show active' : ''}`} id="overview-tab-pane" role="tabpanel" aria-labelledby="overview-tab">
-               <Overview />
-            </div>
-            <div className={`tab-pane fade ${activeTab === 1 ? 'show active' : ''}`} id="overview-tab-pane" role="tabpanel" aria-labelledby="overview-tab">
-               <Instructors />
-            </div>
-            <div className={`tab-pane fade ${activeTab === 2 ? 'show active' : ''}`} id="overview-tab-pane" role="tabpanel" aria-labelledby="overview-tab">
-               <Reviews />
-            </div>
-         </div>
+
       </div>
    )
 }

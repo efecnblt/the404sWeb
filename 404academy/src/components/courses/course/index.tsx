@@ -1,11 +1,11 @@
-import FooterOne from "../../../layouts/footers/FooterOne"
 import HeaderOne from "../../../layouts/headers/HeaderOne"
 import BreadcrumbOne from "../../common/breadcrumb/BreadcrumbOne"
 import CourseArea from "./CourseArea"
-import {AuthProvider} from "../../../firebase/AuthContext.tsx";
 import FooterThree from "../../../layouts/footers/FooterThree.tsx";
 
 const Course = () => {
+
+
    return (
       <>
 

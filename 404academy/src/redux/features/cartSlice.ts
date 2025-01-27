@@ -7,16 +7,22 @@ interface Product {
    title: string;
    quantity: number;
    price: number;
+   authorId?: number;
+   thumb?: number;
 }
 
 interface CartState {
    cart: Product[];
    orderQuantity: number;
+   discountApplied: boolean;
+   discountedTotal: number | null; // İndirimli toplam
 }
 
 const initialState: CartState = {
    cart: getLocalStorage<Product>("cart") || [], // Load initial state from localStorage
    orderQuantity: 1,
+   discountApplied: false,
+   discountedTotal: null,
 };
 
 const cartSlice = createSlice({
@@ -57,6 +63,11 @@ const cartSlice = createSlice({
          setLocalStorage("cart", state.cart); // Update localStorage
       },
       clear_cart: (state) => {
+         if (state.cart.length === 0) {
+            // Sepet boşsa hiçbir işlem yapma
+            return;
+         }
+
          const confirmMsg = window.confirm("Are you sure you want to delete your cart?");
          if (confirmMsg) {
             state.cart = [];
@@ -66,6 +77,23 @@ const cartSlice = createSlice({
       get_cart_products: (state) => {
          state.cart = getLocalStorage<Product>("cart"); // Load cart from localStorage
       },
+      applyDiscount: (state, { payload }: PayloadAction<number>) => {
+         if (!state.discountApplied) {
+            state.discountApplied = true;
+            const discountRate = payload; // Örneğin, 0.2 (%20 indirim)
+            const discountedCart = state.cart.map((item) => ({
+               ...item,
+               price: parseFloat((item.price * (1 - discountRate)).toFixed(2)),
+            }));
+            state.cart = discountedCart;
+            state.discountedTotal = state.cart.reduce(
+                (acc, item) => acc + item.price * item.quantity,
+                0
+            );
+            setLocalStorage("cart", state.cart); // LocalStorage'ı güncelle
+         }
+      },
+
    },
 });
 
@@ -75,6 +103,7 @@ export const {
    remove_cart_product,
    clear_cart,
    get_cart_products,
+   applyDiscount
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

@@ -1,149 +1,40 @@
 import { Link } from "react-router-dom"
 import {useEffect, useState} from "react";
-import {useAuth} from "../../firebase/AuthContext.tsx";
-import {collection, doc, getDoc, getDocs} from "firebase/firestore";
-import {db} from "../../firebase/firebaseConfig.ts";
+import { useAuth } from "../../firebase/AuthContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 
 
-
-const fetchFavoritesWithDetails = async (userId: string) => {
-    try {
-        const userDocRef = doc(db, `users/${userId}`);
-        const userDoc = await getDoc(userDocRef);
-
-        if (!userDoc.exists()) {
-            console.error("Kullanıcı dokümanı bulunamadı.");
-            return [];
-        }
-
-        const userData = userDoc.data();
-        const favorites = userData.favorites ? Object.values(userData.favorites) : [];
-        console.log("Favorites:", favorites); // Favorileri kontrol etmek için
-
-        const favoriteCourses = [];
-
-        // Favoriler için kurs ve eğitmen bilgilerini çekme
-        const promises = favorites.map(async (favorite) => {
-            const { authorId, courseId } = favorite;
-
-            // Kurs ve eğitmen bilgilerini eşzamanlı olarak çekme
-            const courseDocRef = doc(db, `authors/${authorId}/courses/${courseId}`);
-            const authorDocRef = doc(db, `authors/${authorId}`);
-
-            const [courseDoc, authorDoc] = await Promise.all([
-                getDoc(courseDocRef),
-                getDoc(authorDocRef),
-            ]);
-
-            const courseData = courseDoc.exists() ? courseDoc.data() : null;
-            const authorData = authorDoc.exists() ? authorDoc.data() : null;
-
-            if (!courseData || !authorData) {
-                // Kurs veya eğitmen bilgileri bulunamadıysa, bu favoriyi atla
-                return;
-            }
-
-            // Toplam ders sayısı ve toplam süreyi hesaplamak için değişkenler
-            let totalLessons = 0;
-            let totalDurationInSeconds = 0;
-
-            // Bölümleri ve videoları çekme
-            const sectionsRef = collection(
-                db,
-                `authors/${authorId}/courses/${courseId}/sections`
-            );
-            const sectionsSnapshot = await getDocs(sectionsRef);
-
-            const sectionPromises = sectionsSnapshot.docs.map(async (sectionDoc) => {
-                const sectionId = sectionDoc.id;
-
-                // Bölüm altındaki videoları çekme
-                const videosRef = collection(
-                    db,
-                    `authors/${authorId}/courses/${courseId}/sections/${sectionId}/videos`
-                );
-                const videosSnapshot = await getDocs(videosRef);
-
-                totalLessons += videosSnapshot.size;
-
-                // Videoların sürelerini toplama
-                videosSnapshot.docs.forEach((videoDoc) => {
-                    const videoData = videoDoc.data();
-                    // `duration` değerini doğru birime çevirin
-                    const durationInSeconds = videoData.duration * 1; // Örneğin, dakika ise saniyeye çevir
-                    totalDurationInSeconds += durationInSeconds;
-
-
-                });
-            });
-
-            await Promise.all(sectionPromises);
-
-            // Toplam süreyi okunabilir formata dönüştürme (örn: "2h 30m")
-            const totalDuration = formatDuration(totalDurationInSeconds);
-
-            // Kurs verilerine toplam ders sayısı ve süreyi ekleme
-            const enrichedCourseData = {
-                ...courseData,
-                totalLessons,
-                totalDuration,
-            };
-
-            favoriteCourses.push({
-                authorId,
-                courseId,
-                courseData: enrichedCourseData,
-                authorData,
-            });
-        });
-
-        await Promise.all(promises);
-
-        return favoriteCourses;
-    } catch (error) {
-        console.error("Favoriler çekilirken hata oluştu:", error);
-        return [];
-    }
-};
-
-const formatDuration = (totalSeconds: number) => {
-    if (totalSeconds <= 0) return "0s";
-
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = Math.floor(totalSeconds % 60);
-
-    let durationString = "";
-    if (hours > 0) {
-        durationString += `${hours}h `;
-    }
-    if (minutes > 0) {
-        durationString += `${minutes}m `;
-    }
-    if (seconds > 0 && hours === 0) {
-        // Sadece saat yoksa saniyeleri göster
-        durationString += `${seconds}s`;
-    }
-    return durationString.trim();
-};
 
 
 
 const DashboardCourse = () => {
-    const [favoriteCourses, setFavoriteCourses] = useState<any[]>([]);
+    const [favoriteCourses] = useState<any[]>([]);
     const { user } = useAuth();
+    const [isInstructor, setIsInstructor] = useState(false);
+
 
     useEffect(() => {
-        const getFavorites = async () => {
-            if (user?.id) {
-                const favorites = await fetchFavoritesWithDetails(user.id);
-                setFavoriteCourses(favorites);
-            }
-        };
+      const fetchUserRole = async () => {
+         try {
+            const roleResponse = await axios.get(`http://165.232.76.61:5001/api/Users/getclaims/${user?.id}`);
+            const roles = roleResponse.data;
 
-        getFavorites();
-    }, [user?.id]);
+            // Check if the user has the role of "Author" (instructor)
+            const isAuthor = roles.some(role => role.name === "Author");
+            setIsInstructor(isAuthor);
+         } catch (error) {
+            console.error("Error fetching user role:", error);
+            toast.error("Failed to load user role");
+         }
+      };
+      fetchUserRole(); // Fetch user role first
+    }, [user]);
+
+    if (isInstructor) {
+        return null;
+    } 
 
     return (
         <div className="progress__courses-wrap">

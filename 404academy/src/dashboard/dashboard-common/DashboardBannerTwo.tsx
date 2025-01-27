@@ -11,19 +11,18 @@ const DashboardBannerTwo =  ()=> {
          <div className="dashboard__instructor-info">
             <div className="dashboard__instructor-info-left">
                <div className="thumb">
-                  <img src={user?.profileImage} alt="img" />
+                  <img src={user?.imageUrl} alt="img" />
                </div>
                <div className="content">
-                  <h4 className="title">{user?.name}</h4>
+                  <h4 className="title">{user?.name + ' ' + user?.surname}</h4>
                   <ul className="list-wrap">
                      <li>
-                        <InjectableSvg src="/assets/img/icons/course_icon03.svg" alt="img" className="injectable" />
-                        5 Courses Enrolled
+                        {user?.email}
                      </li>
-                     <li>
+                     {/*<li>
                         <InjectableSvg src="/assets/img/icons/course_icon05.svg" alt="img" className="injectable" />
                         4 Certificate
-                     </li>
+                     </li>*/}
                   </ul>
                </div>
             </div>

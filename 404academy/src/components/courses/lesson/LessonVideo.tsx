@@ -1,21 +1,25 @@
-import { useEffect } from "react";
-import Plyr from 'plyr';
+import React from "react";
 
-const LessonVideo = () => {
-
-   useEffect(() => {
-      const player = new Plyr('#player');
-      return () => {
-         player.destroy();
-      };
-   }, []);
-
+const LessonVideo = ({ video }) => {
    return (
-      <video id="player" playsInline controls data-poster="/assets/img/bg/video_bg.webp">
-         <source src="/assets/video/video.mp4" type="video/mp4" />
-         <source src="/path/to/video.webm" type="video/webm" />
-      </video>
-   )
-}
+       <div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
+          <video
+              controls
+              src={video.url} // Firebase video URL'si burada kullanılıyor
+              style={{
+                 position: "absolute",
+                 top: 0,
+                 left: 0,
+                 width: "100%",
+                 height: "100%",
+              }}
+          />
+          <p style={{ marginTop: "10px", textAlign: "center" }}>
+             {video.title} - Süre: {Math.floor(video.duration / 60)}:
+             {(video.duration % 60).toString().padStart(2, "0")}
+          </p>
+       </div>
+   );
+};
 
-export default LessonVideo
+export default LessonVideo;

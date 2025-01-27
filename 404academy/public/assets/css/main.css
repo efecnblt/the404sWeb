@@ -1867,14 +1867,10 @@ textarea {
   }
 }
 .tgmenu__search-form {
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  display: flex;
-  width: 535px;
-  border-radius: 100px;
-  border: 1px solid #D3D2DF;
+  position: relative;
+  width: 120%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 @media (max-width: 1800px) {
   .tgmenu__search-form {
@@ -6676,6 +6672,7 @@ textarea {
 .courses__item-three .courses__item-content .info {
   margin-bottom: 0;
   margin-top: 8px;
+
 }
 .courses__item-three .courses__item-tag {
   gap: 15px;
@@ -18284,6 +18281,49 @@ blockquote > p {
     display: none;
   }
 }
+.verification-form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btn {
+  padding: 10px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.loading-spinner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18px;
+  font-weight: bold;
+}
 
 .account__social-btn {
   display: -webkit-box;
@@ -19708,7 +19748,7 @@ blockquote > p {
   justify-content: space-between;
   gap: 20px;
   color: var(--tg-common-color-dark);
-  cursor: no-drop;
+
 }
 .lesson__content .course-item-link .item-name {
   display: -webkit-box;
@@ -20626,6 +20666,54 @@ blockquote > p {
     width: 1050px; /* Masaüstü boyutu */
     height: 470px; /* Masaüstü boyutu */
   }
+}
+
+/* Add this CSS to your styles */
+.add-quiz-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.question-container {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.choice-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.choice-container input[type="text"] {
+  flex: 1;
+  margin-right: 10px;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
 }
 
 

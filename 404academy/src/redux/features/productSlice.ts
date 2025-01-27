@@ -15,6 +15,7 @@ export interface Product {
    language: string;
    price_type: string;
    quantity: number;
+   authorId?: number; // <-- yeni eklenen alan
 }
 
 interface ProductState {

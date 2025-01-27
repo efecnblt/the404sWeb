@@ -4,6 +4,7 @@ import InstructorForm from "../../../../forms/InstructorForm";
 import { db } from "../../../../firebase/firebaseConfig";
 import {collection, doc, getDoc, getDocs} from "firebase/firestore";
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 interface DataType {
   id: number;
@@ -35,6 +36,18 @@ interface Instructor {
 }
 
 
+type AuthorAPIResponse = {
+  authorID: number;
+  name: string;
+  biography: string;
+  departmentID: number;
+  rating: number;
+  studentCount: number;
+  courseCount: number;
+  imageURL: string;
+};
+
+
 const  InstructorDetailsArea = ({ setInstructorName }: { setInstructorName: (name: string) => void }) =>  {
   const { instructorId } = useParams();
   const [instructor, setInstructor] = useState<Instructor | null>(null);
@@ -52,27 +65,32 @@ const  InstructorDetailsArea = ({ setInstructorName }: { setInstructorName: (nam
       }
 
       try {
-        // Author bilgilerini çek
-        const instructorDoc = await getDoc(doc(db, "authors", instructorId));
-        if (instructorDoc.exists()) {
-          const instructorData = instructorDoc.data() as Instructor;
-          setInstructorName(instructorData.name);
+        // --- 1) API'den instructor (author) bilgisini çek
+        // Örnek: http://165.232.76.61:5001/api/Authors/getbyid/8
+        const response = await axios.get<AuthorAPIResponse>(
+            `http://165.232.76.61:5001/api/Authors/getbyid/${instructorId}`
+        );
 
-          // Courses alt koleksiyonunu çek
-          const coursesSnapshot = await getDocs(collection(db, "authors", instructorId, "courses"));
-          const courses = coursesSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...(doc.data() as { coursename: string; courserating: number }),
-          }));
+        const authorData = response.data;
 
-          setInstructor({
-            id: instructorDoc.id,
-            ...(instructorData as Omit<Instructor, "id">),
-            courses, // Courses ekle
-          });
-        } else {
-          setError("Instructor not found!");
-        }
+        // 2) Yazar ismini parent’a bildirmek için:
+        setInstructorName(authorData.name);
+
+        // 3) instructor state'ini güncelle
+        setInstructor({
+          id: authorData.authorID.toString(),
+          name: authorData.name,
+          // department bilgisini API'de "departmentID" olarak döndüğü için
+          // dilerseniz başka bir endpoint'ten veya sabit tablo ile eşleştirebilirsiniz.
+          // Şimdilik placeholder bir string veriyoruz:
+          department: `Department ${authorData.departmentID}`,
+          rating: authorData.rating,
+          description: authorData.biography,
+          image_url: authorData.imageURL,
+          // eğer kursları da çekmek isterseniz, separate bir endpoint olabilir.
+          // Yukarıdaki "courseCount" var ama detaylar yok.
+          courses: [],
+        });
       } catch (err) {
         console.error("Error fetching instructor details:", err);
         setError("An error occurred while fetching data.");
@@ -82,7 +100,7 @@ const  InstructorDetailsArea = ({ setInstructorName }: { setInstructorName: (nam
     };
 
     fetchInstructorDetails();
-  }, [instructorId,setInstructorName] );
+  }, [instructorId, setInstructorName]);
 
 
   if (loading) {
@@ -143,7 +161,7 @@ const  InstructorDetailsArea = ({ setInstructorName }: { setInstructorName: (nam
                   <h4 className="title">Biography</h4>
                   <p>{instructor.description || "Biography not available."}</p>
                 </div>
-                <div className="instructor__details-Skill">
+                {/*<div className="instructor__details-Skill">
                   <h4 className="title">Skills</h4>
                   <div className="instructor__progress-wrap">
                     <ul className="list-wrap">
@@ -161,7 +179,7 @@ const  InstructorDetailsArea = ({ setInstructorName }: { setInstructorName: (nam
                       ))}
                     </ul>
                   </div>
-                </div>
+                </div>*/}
 
                 <div className="instructor__details-courses">
                   <div className="row align-items-center mb-30">
@@ -175,7 +193,7 @@ const  InstructorDetailsArea = ({ setInstructorName }: { setInstructorName: (nam
                       </div>
                     </div>
                   </div>
-                  <InstructorSlider instructorId={instructor.id} name={instructor.name} />
+                  <InstructorSlider />
                 </div>
               </div>
             </div>
